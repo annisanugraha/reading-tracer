@@ -25,8 +25,6 @@ export default function RootLayout({
   return (
     <html lang="id" className={`h-full ${jakarta.variable}`}>
       <body className="min-h-full flex flex-col antialiased">
-        {/* Grain overlay */}
-        <div className="grain-overlay" aria-hidden />
         <Navbar />
         <main className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 sm:px-8">
           {children}
