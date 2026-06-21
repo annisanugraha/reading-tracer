@@ -50,13 +50,12 @@ export default function DetailBukuPage() {
   const [progressInput, setProgressInput] = useState<string>(
     book ? book.halamanTerbaca.toString() : ""
   );
-  const [lastSyncedBookId, setLastSyncedBookId] = useState<string | null>(
-    book?.id ?? null
-  );
-  if (book && book.id !== lastSyncedBookId) {
-    setLastSyncedBookId(book.id);
-    setProgressInput(book.halamanTerbaca.toString());
-  }
+
+  useEffect(() => {
+    if (book) {
+      setProgressInput(book.halamanTerbaca.toString());
+    }
+  }, [book?.halamanTerbaca, book?.id]);
 
   if (!siap) {
     return (
@@ -79,7 +78,7 @@ export default function DetailBukuPage() {
 
   if (!book) {
     return (
-      <div className="mx-auto flex w-full max-w-6xl flex-col items-center gap-4 px-4 pb-20 pt-32">
+      <div className="mx-auto flex w-full max-w-6xl flex-col items-center gap-4 px-3 pb-20 pt-28">
         <EmptyState
           variant="search"
           title="Buku tidak ditemukan"
@@ -125,7 +124,7 @@ export default function DetailBukuPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 pb-24 pt-32 sm:px-8">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-3 pb-24 pt-28 sm:px-6">
       {/* ── Back ───────────────────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0, x: -8 }}
@@ -596,7 +595,7 @@ function ModalShell({
           background: "rgba(255,255,255,0.92)",
           backdropFilter: "blur(36px) saturate(1.6)",
           WebkitBackdropFilter: "blur(36px) saturate(1.6)",
-          borderRadius: "2rem",
+          borderRadius: "1.25rem",
           border: "1px solid rgba(255,255,255,0.95)",
           boxShadow:
             "0 30px 80px rgba(11,25,87,0.22), 0 8px 28px rgba(11,25,87,0.08)",

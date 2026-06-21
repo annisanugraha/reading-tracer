@@ -54,7 +54,7 @@ export function ConfirmDialog({
           backdropFilter: "blur(28px) saturate(1.5)",
           WebkitBackdropFilter: "blur(28px) saturate(1.5)",
           border: "1px solid rgba(255,255,255,0.95)",
-          borderRadius: "1.75rem",
+          borderRadius: "1.25rem",
           boxShadow:
             "0 24px 70px rgba(11,25,87,0.18), 0 6px 24px rgba(11,25,87,0.08)",
         }}

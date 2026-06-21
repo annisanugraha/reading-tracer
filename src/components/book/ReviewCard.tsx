@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, type MouseEvent } from "react";
-import { motion } from "framer-motion";
+import { useRef, useState, type MouseEvent } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { RatingStars } from "./RatingStars";
 import { escapeAlt, formatTanggal, inisialJudul } from "@/lib/utils";
 
@@ -26,8 +26,8 @@ const COVER_GRADIENTS = [
 ];
 
 /**
- * ReviewCard — editorial review dengan quote-mark flourish dan neumorphism.
- * Opening curly quote animates in first.
+ * ReviewCard v2 — editorial review with quote-mark flourish, neumorphism,
+ * enhanced hover interactions.
  */
 export function ReviewCard({
   cover,
@@ -62,20 +62,21 @@ export function ReviewCard({
     <motion.article
       ref={cardRef}
       onMouseMove={onMouseMove}
-      whileHover={{ y: -3 }}
+      whileHover={{ y: -4 }}
       transition={{ type: "spring", stiffness: 220, damping: 22 }}
       className={`group relative flex gap-5 p-5 ${className}`}
       style={{
         background: "var(--surface)",
         border: "1px solid var(--hairline)",
-        borderRadius: "1.75rem",
+        borderRadius: "1rem",
         boxShadow: "var(--shadow-float)",
         transition: "box-shadow 0.6s cubic-bezier(0.22, 1, 0.36, 1)",
       }}
     >
+      {/* Quote mark flourish */}
       <motion.span
         initial={{ opacity: 0, scale: 0.6, rotate: -8 }}
-        whileInView={{ opacity: 0.18, scale: 1, rotate: 0 }}
+        whileInView={{ opacity: 0.15, scale: 1, rotate: 0 }}
         viewport={{ once: true, margin: "-50px" }}
         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         aria-hidden
@@ -88,15 +89,27 @@ export function ReviewCard({
           lineHeight: 1,
         }}
       >
-        “
+        &ldquo;
       </motion.span>
 
+      {/* Top hairline accent */}
       <span
         aria-hidden
         className="pointer-events-none absolute top-0 left-8 right-8 h-px"
         style={{
           background:
             "linear-gradient(90deg, transparent, rgba(255,255,255,0.95), transparent)",
+        }}
+      />
+
+      {/* Cursor-following specular highlight */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+        style={{
+          borderRadius: "inherit",
+          background:
+            "radial-gradient(circle 160px at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.45), transparent 70%)",
         }}
       />
 
@@ -107,7 +120,7 @@ export function ReviewCard({
             style={{
               height: "7rem",
               width: "5rem",
-              borderRadius: "0.75rem",
+              borderRadius: "0.6rem",
               boxShadow:
                 "0 4px 14px rgba(11,25,87,0.10), inset 0 1px 0 rgba(255,255,255,0.3)",
             }}
@@ -126,7 +139,7 @@ export function ReviewCard({
             style={{
               height: "7rem",
               width: "5rem",
-              borderRadius: "0.75rem",
+              borderRadius: "0.6rem",
               background: COVER_GRADIENTS[bgIdx],
               boxShadow:
                 "0 4px 14px rgba(11,25,87,0.12), inset 0 1px 0 rgba(255,255,255,0.35)",
@@ -188,6 +201,17 @@ export function ReviewCard({
           </span>
         </div>
       </div>
+
+      {/* Hover arrow */}
+      {href && (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute right-4 bottom-4 opacity-0 transition-all duration-500 group-hover:opacity-100 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+          style={{ color: "var(--ink-light)" }}
+        >
+          <i className="ri-arrow-right-up-line" style={{ fontSize: "0.88rem" }} />
+        </span>
+      )}
     </motion.article>
   );
 
@@ -196,7 +220,7 @@ export function ReviewCard({
       <Link
         href={href}
         className="block focus:outline-none"
-        style={{ borderRadius: "1.75rem" }}
+        style={{ borderRadius: "1rem" }}
       >
         {inner}
       </Link>

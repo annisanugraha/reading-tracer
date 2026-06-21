@@ -33,11 +33,26 @@ export const metadata: Metadata = {
     "Sebuah atelier kecil untuk mencatat, merayakan, dan merawat setiap buku yang pernah kamu sentuh.",
 };
 
+const MARQUEE_ITEMS = [
+  "Perpustakaan Pribadi",
+  "✦",
+  "Atelier of Books",
+  "❋",
+  "Reading is Dreaming",
+  "·",
+  "Kata-kata yang Bertahan",
+  "✿",
+  "One Page at a Time",
+  "·",
+];
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const marqueeText = [...MARQUEE_ITEMS, ...MARQUEE_ITEMS].join("   ");
+
   return (
     <html
       lang="id"
@@ -49,11 +64,42 @@ export default function RootLayout({
         <main className="relative z-10 flex w-full flex-1 flex-col">
           <PageTransition>{children}</PageTransition>
         </main>
-        <footer className="relative z-10 px-6 py-10">
-          <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 text-center">
-            <div className="hairline w-32" />
-            <p className="label-meta opacity-70">
-              Perpustakaan Pribadi · Atelier of Books
+        <footer className="relative z-10 px-3 py-10 sm:px-6 overflow-hidden">
+          <div className="mx-auto flex max-w-6xl flex-col items-center gap-5 text-center">
+            {/* Ornamental gradient line */}
+            <div className="ornament-line w-24" />
+
+            {/* Marquee */}
+            <div className="w-full overflow-hidden opacity-50">
+              <div className="marquee-track">
+                {[0, 1].map((copy) => (
+                  <span
+                    key={copy}
+                    className="label-meta inline-block whitespace-nowrap px-4"
+                    style={{
+                      fontSize: "0.58rem",
+                      letterSpacing: "0.25em",
+                    }}
+                  >
+                    {MARQUEE_ITEMS.map((item, i) => (
+                      <span key={i} className="mx-3">
+                        {item === "✦" || item === "❋" || item === "✿" || item === "·" ? (
+                          <span style={{ color: "var(--pink-soft)" }}>{item}</span>
+                        ) : (
+                          item
+                        )}
+                      </span>
+                    ))}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <p
+              className="label-meta opacity-40"
+              style={{ fontSize: "0.55rem" }}
+            >
+              © {new Date().getFullYear()} · Handcrafted with care
             </p>
           </div>
         </footer>

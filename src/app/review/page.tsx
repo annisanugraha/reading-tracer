@@ -13,7 +13,7 @@ export default function ReviewPage() {
   const [sort, setSort] = useState<SortMode>("rating");
 
   const reviewed = useMemo(
-    () => books.filter((b) => b.review && b.review.rating > 0),
+    () => books.filter((b) => b.status === "selesai" && b.review && b.review.rating > 0),
     [books]
   );
 
@@ -59,7 +59,7 @@ export default function ReviewPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 pb-24 pt-32 sm:px-8">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-3 pb-24 pt-28 sm:px-6">
       {/* ── Header ─────────────────────────────────────────── */}
       <motion.header
         initial={{ opacity: 0, y: 16 }}
@@ -168,7 +168,7 @@ export default function ReviewPage() {
             hidden: {},
             show: { transition: { staggerChildren: 0.08 } },
           }}
-          className="grid grid-cols-1 gap-5 md:grid-cols-2"
+          className="grid grid-cols-1 gap-4 md:grid-cols-2"
         >
           <AnimatePresence mode="popLayout">
             {sorted.map((b) => (

@@ -4,48 +4,48 @@
 @import "remixicon/fonts/remixicon.css";
 
 /* ================================================================
-   ATELIER LIBRARY — DESIGN SYSTEM
+   ATELIER LIBRARY — DESIGN SYSTEM v2
    Inspired by evangeline.design
    Airy Neumorphism · Feather-light Shadows · Hairline Elements
-   Low-Density UI · Ethereal Tactility
+   Low-Density UI · Ethereal Tactility · Kinetic Typography
    ================================================================ */
 
 :root {
   /* ── Brand palette (existing) ────────────────────────────── */
-  --navy:         #0B1957;
-  --blue-mid:     #4E8BC4;
-  --blue-soft:    #5784E6;
-  --blue-light:   #96CBFC;
-  --blue-pale:    #C2E1FC;
-  --pink-hot:     #FF99BE;
-  --pink-mid:     #FFC2D9;
-  --pink-soft:    #FA9EBC;
-  --pink-pale:    #F4D1FF;
+  --navy: #0B1957;
+  --blue-mid: #4E8BC4;
+  --blue-soft: #5784E6;
+  --blue-light: #96CBFC;
+  --blue-pale: #C2E1FC;
+  --pink-hot: #FF99BE;
+  --pink-mid: #FFC2D9;
+  --pink-soft: #FA9EBC;
+  --pink-pale: #F4D1FF;
 
   /* ── Neutrals (existing) ─────────────────────────────────── */
-  --ink:          #28343B;
-  --ink-mid:      #78848A;
-  --ink-light:    #9CA3AF;
-  --surface:      #FAFBFF;
-  --white:        #FFFFFF;
+  --ink: #28343B;
+  --ink-mid: #78848A;
+  --ink-light: #9CA3AF;
+  --surface: #FAFBFF;
+  --white: #FFFFFF;
 
   /* ── Canvas aliases (mapped from existing palette) ───────── */
-  --paper:        #F7F8FE;        /* soft off-white canvas */
-  --paper-soft:   #EEF2FC;        /* inset surfaces */
-  --surface-2:    #FCFDFF;        /* brightest surface */
+  --paper: #FFFFFF;
+  --paper-soft: #F9F9FA;
+  --surface-2: #FFFFFF;
 
   /* ── Hairlines & shadows ─────────────────────────────────── */
-  --hairline:        rgba(11, 25, 87, 0.07);
+  --hairline: rgba(11, 25, 87, 0.07);
   --hairline-strong: rgba(11, 25, 87, 0.14);
-  --hairline-light:  rgba(255, 255, 255, 0.7);
+  --hairline-light: rgba(255, 255, 255, 0.7);
 
   /* Feather-light dual shadow: top-left highlight + bottom-right depth */
   --shadow-nm:
-    -8px -8px 24px rgba(255, 255, 255, 0.9),
-    8px 8px 24px rgba(87, 132, 230, 0.06);
+    -6px -6px 18px rgba(255, 255, 255, 0.88),
+    6px 6px 18px rgba(87, 132, 230, 0.06);
   --shadow-nm-lg:
-    -14px -14px 40px rgba(255, 255, 255, 0.95),
-    14px 14px 40px rgba(87, 132, 230, 0.08);
+    -10px -10px 32px rgba(255, 255, 255, 0.92),
+    10px 10px 32px rgba(87, 132, 230, 0.07);
   --shadow-nm-inset:
     inset 2px 2px 6px rgba(11, 25, 87, 0.05),
     inset -2px -2px 6px rgba(255, 255, 255, 0.8);
@@ -57,30 +57,32 @@
     0 20px 50px rgba(87, 132, 230, 0.10);
 
   /* ── Motion easings ──────────────────────────────────────── */
-  --ease-fluid:   cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-fluid: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-whisper: cubic-bezier(0.32, 0.72, 0, 1);
-  --ease-spring:  cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ── Reduced radii (less rounded per user request) ───────── */
+  --radius: 0.875rem;
 
   /* ── shadcn tokens (kept for compatibility) ──────────────── */
-  --background:   var(--paper);
-  --foreground:   var(--ink);
-  --card:         var(--surface);
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: var(--surface);
   --card-foreground: var(--ink);
-  --popover:      var(--surface-2);
+  --popover: var(--surface-2);
   --popover-foreground: var(--ink);
-  --primary:      var(--navy);
+  --primary: var(--navy);
   --primary-foreground: var(--white);
-  --secondary:    var(--blue-pale);
+  --secondary: var(--blue-pale);
   --secondary-foreground: var(--navy);
-  --muted:        var(--paper-soft);
+  --muted: var(--paper-soft);
   --muted-foreground: var(--ink-mid);
-  --accent:       var(--pink-pale);
+  --accent: var(--pink-pale);
   --accent-foreground: var(--navy);
-  --destructive:  #E05555;
-  --border:       var(--hairline);
-  --input:        var(--hairline);
-  --ring:         var(--blue-soft);
-  --radius:       1.25rem;
+  --destructive: #E05555;
+  --border: var(--hairline);
+  --input: var(--hairline);
+  --ring: var(--blue-soft);
 
   --chart-1: var(--blue-mid);
   --chart-2: var(--pink-hot);
@@ -112,21 +114,29 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm:  0.5rem;
-  --radius-md:  0.875rem;
-  --radius-lg:  1.25rem;
-  --radius-xl:  1.75rem;
-  --radius-2xl: 2.25rem;
-  --radius-3xl: 3rem;
-  --radius-4xl: 4rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.125rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+  --radius-4xl: 2.5rem;
 }
 
 /* ================================================================
    BASE
    ================================================================ */
 
-*, *::before, *::after { box-sizing: border-box; }
-* { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
 html {
   scroll-behavior: smooth;
@@ -138,8 +148,29 @@ body {
   font-family: var(--font-sans);
   color: var(--ink);
   min-height: 100vh;
-  background-color: #ffffff;
   letter-spacing: -0.005em;
+  /* Animated mesh gradient background (very subtle on white) */
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 40%, rgba(194, 225, 252, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 60% at 80% 20%, rgba(244, 209, 255, 0.08) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 50% at 50% 90%, rgba(255, 194, 217, 0.06) 0%, transparent 50%),
+    var(--paper);
+  background-attachment: fixed;
+  animation: mesh-drift 30s ease-in-out infinite alternate;
+}
+
+@keyframes mesh-drift {
+  0% {
+    background-position: 0% 0%, 100% 0%, 50% 100%;
+  }
+
+  50% {
+    background-position: 30% 20%, 70% 40%, 40% 80%;
+  }
+
+  100% {
+    background-position: 10% 40%, 90% 10%, 60% 90%;
+  }
 }
 
 /* Paper grain overlay applied via ::before */
@@ -149,27 +180,86 @@ body::before {
   inset: 0;
   pointer-events: none;
   z-index: 1;
-  opacity: 0.025;
+  opacity: 0.02;
   mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
 
-button { cursor: pointer; font-family: inherit; }
-button:disabled { cursor: not-allowed; opacity: 0.5; }
-input, select, textarea { font: inherit; color: inherit; }
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
 
 @layer base {
-  * { @apply outline-ring/40; }
-  body { @apply bg-background text-foreground; }
+  * {
+    @apply outline-ring/40;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
 }
 
 /* ================================================================
-   TYPOGRAPHY — Editorial, ethereal
+   TYPOGRAPHY — Editorial, ethereal, kinetic
    ================================================================ */
 
-.font-display { font-family: var(--font-display); font-feature-settings: "ss01", "ss02", "calt", "liga"; }
-.font-mono    { font-family: var(--font-mono); }
-.font-sans    { font-family: var(--font-sans); }
+.font-display {
+  font-family: var(--font-display);
+  font-feature-settings: "ss01", "ss02", "calt", "liga";
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+.font-sans {
+  font-family: var(--font-sans);
+}
+
+/* Gradient text utility */
+.text-gradient {
+  background: linear-gradient(135deg, var(--blue-soft) 0%, var(--pink-soft) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-reverse {
+  background: linear-gradient(135deg, var(--pink-soft) 0%, var(--blue-soft) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Breathing letter-spacing animation */
+.heading-breathe {
+  animation: breathe-spacing 8s ease-in-out infinite;
+}
+
+@keyframes breathe-spacing {
+
+  0%,
+  100% {
+    letter-spacing: -0.045em;
+  }
+
+  50% {
+    letter-spacing: -0.02em;
+  }
+}
 
 /* Fluid display sizing */
 .heading-hero {
@@ -181,6 +271,7 @@ input, select, textarea { font: inherit; color: inherit; }
   color: var(--navy);
   font-optical-sizing: auto;
 }
+
 .heading-hero em,
 .heading-hero .accent {
   font-style: italic;
@@ -196,7 +287,11 @@ input, select, textarea { font: inherit; color: inherit; }
   letter-spacing: -0.035em;
   color: var(--navy);
 }
-.heading-display em { font-style: italic; color: var(--pink-soft); }
+
+.heading-display em {
+  font-style: italic;
+  color: var(--pink-soft);
+}
 
 .heading-section {
   font-family: var(--font-display);
@@ -206,7 +301,11 @@ input, select, textarea { font: inherit; color: inherit; }
   letter-spacing: -0.025em;
   color: var(--navy);
 }
-.heading-section em { font-style: italic; color: var(--pink-soft); }
+
+.heading-section em {
+  font-style: italic;
+  color: var(--pink-soft);
+}
 
 .eyebrow {
   font-family: var(--font-mono);
@@ -216,6 +315,7 @@ input, select, textarea { font: inherit; color: inherit; }
   letter-spacing: 0.22em;
   color: var(--ink-mid);
 }
+
 .eyebrow::before {
   content: "";
   display: inline-block;
@@ -246,13 +346,13 @@ input, select, textarea { font: inherit; color: inherit; }
 }
 
 /* ================================================================
-   NEUMORPHISM PRIMITIVES
+   NEUMORPHISM PRIMITIVES — reduced radius
    ================================================================ */
 
 .surface-nm {
   background: var(--surface);
   border: 1px solid var(--hairline);
-  border-radius: 1.5rem;
+  border-radius: 1rem;
   box-shadow: var(--shadow-nm);
   position: relative;
 }
@@ -260,7 +360,7 @@ input, select, textarea { font: inherit; color: inherit; }
 .surface-nm-lg {
   background: var(--surface);
   border: 1px solid var(--hairline);
-  border-radius: 2rem;
+  border-radius: 1.25rem;
   box-shadow: var(--shadow-nm-lg);
   position: relative;
 }
@@ -268,21 +368,32 @@ input, select, textarea { font: inherit; color: inherit; }
 .surface-paper {
   background: var(--surface);
   border: 1px solid var(--hairline);
-  border-radius: 1.5rem;
+  border-radius: 1rem;
   box-shadow: var(--shadow-float);
+}
+
+.surface-glass {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 1rem;
+  box-shadow:
+    0 4px 16px rgba(11, 25, 87, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .surface-inset {
   background: var(--paper-soft);
   border: 1px solid var(--hairline);
-  border-radius: 1rem;
+  border-radius: 0.75rem;
   box-shadow: var(--shadow-nm-inset);
 }
 
 .surface-flat {
   background: var(--surface);
   border: 1px solid var(--hairline);
-  border-radius: 1rem;
+  border-radius: 0.75rem;
 }
 
 /* Hairline divider */
@@ -298,7 +409,57 @@ input, select, textarea { font: inherit; color: inherit; }
 }
 
 /* ================================================================
-   BUTTONS — Pill, soft, neumorphic
+   ORNAMENTAL ELEMENTS
+   ================================================================ */
+
+/* Self-drawing ornamental line */
+.ornament-line {
+  height: 1px;
+  background: linear-gradient(90deg,
+      transparent 0%,
+      var(--blue-soft) 20%,
+      var(--pink-soft) 50%,
+      var(--blue-soft) 80%,
+      transparent 100%);
+  background-size: 200% 100%;
+  animation: ornament-sweep 4s ease-in-out infinite alternate;
+  opacity: 0.4;
+}
+
+@keyframes ornament-sweep {
+  0% {
+    background-position: 0% 0%;
+  }
+
+  100% {
+    background-position: 100% 0%;
+  }
+}
+
+/* Animated dashed border (for EmptyState) */
+.dash-march {
+  background-image: repeating-linear-gradient(90deg,
+      var(--blue-soft) 0px,
+      var(--blue-soft) 8px,
+      transparent 8px,
+      transparent 16px);
+  background-size: 16px 1px;
+  background-repeat: repeat-x;
+  animation: dash-march 1.5s linear infinite;
+}
+
+@keyframes dash-march {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 16px 0;
+  }
+}
+
+/* ================================================================
+   BUTTONS — Pill, soft, neumorphic (reduced radius)
    ================================================================ */
 
 .btn {
@@ -323,16 +484,19 @@ input, select, textarea { font: inherit; color: inherit; }
   white-space: nowrap;
 }
 
-.btn:active { transform: translateY(0.5px) scale(0.995); }
+.btn:active {
+  transform: translateY(0.5px) scale(0.995);
+}
 
 .btn-ink {
   background: var(--navy);
   color: var(--white);
-  box-shadow: 0 1px 2px rgba(11,25,87,0.18), 0 6px 18px rgba(11,25,87,0.22);
+  box-shadow: 0 1px 2px rgba(11, 25, 87, 0.18), 0 6px 18px rgba(11, 25, 87, 0.22);
 }
+
 .btn-ink:hover {
   background: var(--blue-soft);
-  box-shadow: 0 2px 4px rgba(87,132,230,0.20), 0 12px 28px rgba(87,132,230,0.30);
+  box-shadow: 0 2px 4px rgba(87, 132, 230, 0.20), 0 12px 28px rgba(87, 132, 230, 0.30);
   transform: translateY(-1px);
 }
 
@@ -342,6 +506,7 @@ input, select, textarea { font: inherit; color: inherit; }
   border: 1px solid var(--hairline-strong);
   box-shadow: var(--shadow-float);
 }
+
 .btn-paper:hover {
   background: var(--surface-2);
   box-shadow: var(--shadow-hover);
@@ -353,6 +518,7 @@ input, select, textarea { font: inherit; color: inherit; }
   color: var(--ink-mid);
   border: 1px solid transparent;
 }
+
 .btn-ghost:hover {
   color: var(--navy);
   background: var(--paper-soft);
@@ -372,13 +538,17 @@ input, select, textarea { font: inherit; color: inherit; }
   cursor: pointer;
   transition: all 0.5s var(--ease-whisper);
 }
+
 .btn-icon:hover {
   color: var(--navy);
   box-shadow: var(--shadow-hover);
   transform: translateY(-1px);
 }
 
-.btn-icon i { font-size: 1.05rem; line-height: 1; }
+.btn-icon i {
+  font-size: 1.05rem;
+  line-height: 1;
+}
 
 /* ================================================================
    INPUTS — Inset neumorphism
@@ -388,21 +558,26 @@ input, select, textarea { font: inherit; color: inherit; }
   width: 100%;
   background: var(--paper-soft);
   border: 1px solid var(--hairline);
-  border-radius: 0.875rem;
+  border-radius: 0.75rem;
   padding: 0.85rem 1.1rem;
   font-family: var(--font-sans);
   font-size: 0.9rem;
   color: var(--ink);
   outline: none;
   transition: all 0.5s var(--ease-whisper);
-  box-shadow: inset 2px 2px 5px rgba(11,25,87,0.04), inset -1px -1px 3px rgba(255,255,255,0.7);
+  box-shadow: inset 2px 2px 5px rgba(11, 25, 87, 0.04), inset -1px -1px 3px rgba(255, 255, 255, 0.7);
 }
-.input-nm::placeholder { color: var(--ink-light); font-style: italic; }
+
+.input-nm::placeholder {
+  color: var(--ink-light);
+  font-style: italic;
+}
+
 .input-nm:focus {
   border-color: var(--blue-light);
   background: var(--surface);
   box-shadow:
-    inset 2px 2px 5px rgba(11,25,87,0.03),
+    inset 2px 2px 5px rgba(11, 25, 87, 0.03),
     0 0 0 4px rgba(87, 132, 230, 0.10);
 }
 
@@ -425,6 +600,7 @@ input, select, textarea { font: inherit; color: inherit; }
   background: var(--surface);
   color: var(--ink-mid);
 }
+
 .pill .dot {
   width: 5px;
   height: 5px;
@@ -432,16 +608,55 @@ input, select, textarea { font: inherit; color: inherit; }
   background: var(--ink-mid);
 }
 
-.pill-blue   { color: var(--blue-soft); border-color: rgba(87,132,230,0.22); background: rgba(194,225,252,0.45); }
-.pill-blue   .dot { background: var(--blue-soft); }
-.pill-pink   { color: var(--pink-soft); border-color: rgba(250,158,188,0.3); background: rgba(255,194,217,0.45); }
-.pill-pink   .dot { background: var(--pink-soft); }
-.pill-pale   { color: var(--blue-mid); border-color: rgba(150,203,252,0.4); background: rgba(194,225,252,0.5); }
-.pill-pale   .dot { background: var(--blue-mid); }
-.pill-mauve  { color: #8a4a8a; border-color: rgba(217,165,160,0.35); background: rgba(244,209,255,0.5); }
-.pill-mauve  .dot { background: #8a4a8a; }
-.pill-mute   { color: var(--ink-mid); border-color: var(--hairline-strong); background: var(--paper-soft); }
-.pill-mute   .dot { background: var(--ink-mid); }
+.pill-blue {
+  color: var(--blue-soft);
+  border-color: rgba(87, 132, 230, 0.22);
+  background: rgba(194, 225, 252, 0.45);
+}
+
+.pill-blue .dot {
+  background: var(--blue-soft);
+}
+
+.pill-pink {
+  color: var(--pink-soft);
+  border-color: rgba(250, 158, 188, 0.3);
+  background: rgba(255, 194, 217, 0.45);
+}
+
+.pill-pink .dot {
+  background: var(--pink-soft);
+}
+
+.pill-pale {
+  color: var(--blue-mid);
+  border-color: rgba(150, 203, 252, 0.4);
+  background: rgba(194, 225, 252, 0.5);
+}
+
+.pill-pale .dot {
+  background: var(--blue-mid);
+}
+
+.pill-mauve {
+  color: #8a4a8a;
+  border-color: rgba(217, 165, 160, 0.35);
+  background: rgba(244, 209, 255, 0.5);
+}
+
+.pill-mauve .dot {
+  background: #8a4a8a;
+}
+
+.pill-mute {
+  color: var(--ink-mid);
+  border-color: var(--hairline-strong);
+  background: var(--paper-soft);
+}
+
+.pill-mute .dot {
+  background: var(--ink-mid);
+}
 
 /* ================================================================
    FILTER CHIP — Soft toggle
@@ -463,17 +678,19 @@ input, select, textarea { font: inherit; color: inherit; }
   color: var(--ink-mid);
   transition: all 0.5s var(--ease-whisper);
 }
+
 .chip:hover {
   color: var(--navy);
   border-color: var(--ink-light);
   background: var(--surface-2);
 }
+
 .chip[aria-pressed="true"],
 .chip.is-active {
   color: var(--white);
   background: var(--navy);
   border-color: var(--navy);
-  box-shadow: 0 4px 14px rgba(11,25,87,0.20);
+  box-shadow: 0 4px 14px rgba(11, 25, 87, 0.20);
 }
 
 /* ================================================================
@@ -487,6 +704,7 @@ input, select, textarea { font: inherit; color: inherit; }
   background: var(--paper-soft);
   overflow: hidden;
 }
+
 .progress-fill {
   height: 100%;
   border-radius: 9999px;
@@ -494,17 +712,77 @@ input, select, textarea { font: inherit; color: inherit; }
   position: relative;
   transition: width 1.4s var(--ease-fluid);
 }
+
 .progress-fill::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.55) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.55) 50%, transparent 100%);
   background-size: 200% 100%;
   animation: shimmer 2.6s linear infinite;
 }
+
 @keyframes shimmer {
-  0%   { background-position: -100% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -100% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Circular progress ring */
+.progress-ring {
+  transform: rotate(-90deg);
+}
+
+.progress-ring-bg {
+  fill: none;
+  stroke: var(--paper-soft);
+  stroke-width: 3;
+}
+
+.progress-ring-fill {
+  fill: none;
+  stroke: url(#progress-gradient);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1.4s var(--ease-fluid);
+}
+
+/* ================================================================
+   ODOMETER — Rolling digit ticker
+   ================================================================ */
+
+.odometer-container {
+  display: inline-flex;
+  overflow: hidden;
+  line-height: 1;
+}
+
+.odometer-digit {
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  width: 0.65em;
+  height: 1em;
+}
+
+.odometer-digit-inner {
+  display: flex;
+  flex-direction: column;
+  transition: transform 1.2s var(--ease-fluid);
+  will-change: transform;
+}
+
+.odometer-digit-inner span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 1em;
+  width: 100%;
+  flex-shrink: 0;
 }
 
 /* ================================================================
@@ -525,54 +803,239 @@ input, select, textarea { font: inherit; color: inherit; }
   will-change: transform;
   display: none;
 }
+
 @media (hover: hover) and (pointer: fine) {
-  .cursor-glow { display: block; }
+  .cursor-glow {
+    display: block;
+  }
 }
 
 /* ================================================================
-   ANIMATED BLOBS
+   ANIMATED BLOBS + MORPH
    ================================================================ */
 
 @keyframes blob-drift-a {
-  0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
-  33%      { transform: translate(30px, -20px) rotate(8deg) scale(1.05); }
-  66%      { transform: translate(-20px, 15px) rotate(-5deg) scale(0.97); }
-}
-@keyframes blob-drift-b {
-  0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
-  50%      { transform: translate(-25px, 30px) rotate(-10deg) scale(1.08); }
-}
-@keyframes blob-drift-c {
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  25%      { transform: translate(20px, 15px) rotate(6deg); }
-  75%      { transform: translate(-15px, -10px) rotate(-4deg); }
-}
-@keyframes pulse-soft {
-  0%, 100% { opacity: 0.45; transform: scale(1); }
-  50%      { opacity: 0.7; transform: scale(1.04); }
-}
-@keyframes line-pulse {
-  0%   { stroke-dashoffset: 1000; }
-  100% { stroke-dashoffset: 0; }
+
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+  }
+
+  33% {
+    transform: translate(30px, -20px) rotate(8deg) scale(1.05);
+  }
+
+  66% {
+    transform: translate(-20px, 15px) rotate(-5deg) scale(0.97);
+  }
 }
 
-.blob-a { animation: blob-drift-a 18s var(--ease-fluid) infinite; }
-.blob-b { animation: blob-drift-b 22s var(--ease-fluid) infinite; }
-.blob-c { animation: blob-drift-c 26s var(--ease-fluid) infinite; }
+@keyframes blob-drift-b {
+
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+  }
+
+  50% {
+    transform: translate(-25px, 30px) rotate(-10deg) scale(1.08);
+  }
+}
+
+@keyframes blob-drift-c {
+
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+
+  25% {
+    transform: translate(20px, 15px) rotate(6deg);
+  }
+
+  75% {
+    transform: translate(-15px, -10px) rotate(-4deg);
+  }
+}
+
+/* Morphing border-radius for organic shapes */
+@keyframes morph {
+
+  0%,
+  100% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+
+  25% {
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+  }
+
+  50% {
+    border-radius: 50% 60% 40% 60% / 40% 50% 60% 50%;
+  }
+
+  75% {
+    border-radius: 40% 60% 50% 40% / 60% 40% 60% 40%;
+  }
+}
+
+@keyframes pulse-soft {
+
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.7;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes line-pulse {
+  0% {
+    stroke-dashoffset: 1000;
+  }
+
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Float animation */
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes float-slow {
+
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-12px) rotate(2deg);
+  }
+}
+
+.blob-a {
+  animation: blob-drift-a 18s var(--ease-fluid) infinite;
+}
+
+.blob-b {
+  animation: blob-drift-b 22s var(--ease-fluid) infinite;
+}
+
+.blob-c {
+  animation: blob-drift-c 26s var(--ease-fluid) infinite;
+}
+
+.morph-shape {
+  animation: morph 20s ease-in-out infinite;
+}
+
+/* ================================================================
+   SPARKLE / PARTICLE EFFECTS
+   ================================================================ */
+
+@keyframes sparkle-rise {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.3);
+  }
+}
+
+@keyframes sparkle-float {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0);
+  }
+
+  20% {
+    opacity: 1;
+    transform: translate(var(--sx, 5px), var(--sy, -10px)) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(var(--ex, 10px), var(--ey, -40px)) scale(0.2);
+  }
+}
+
+.sparkle-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: sparkle-rise 1s var(--ease-fluid) forwards;
+}
+
+/* ================================================================
+   MARQUEE — Infinite scroll text
+   ================================================================ */
+
+@keyframes marquee-scroll {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 40s linear infinite;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
 
 /* ================================================================
    SCROLLBAR — Refined
    ================================================================ */
 
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 ::-webkit-scrollbar-thumb {
   background: var(--ink-light);
   border-radius: 9999px;
 }
-::-webkit-scrollbar-thumb:hover { background: var(--ink-mid); }
 
-::selection { background: rgba(194, 225, 252, 0.6); color: var(--navy); }
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ink-mid);
+}
+
+::selection {
+  background: rgba(194, 225, 252, 0.6);
+  color: var(--navy);
+}
 
 :focus-visible {
   outline: 1px solid var(--blue-soft);
@@ -584,11 +1047,22 @@ input, select, textarea { font: inherit; color: inherit; }
    UTILITIES
    ================================================================ */
 
-.text-balance { text-wrap: balance; }
-.text-pretty  { text-wrap: pretty; }
+.text-balance {
+  text-wrap: balance;
+}
 
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.text-pretty {
+  text-wrap: pretty;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 
 /* Reveal on scroll mask */
 .reveal-mask {
@@ -627,6 +1101,7 @@ input, select, textarea { font: inherit; color: inherit; }
   border: 1px solid var(--hairline);
   transition: all 0.5s var(--ease-whisper);
 }
+
 .section-link:hover {
   color: var(--navy);
   background: var(--surface);
@@ -636,9 +1111,70 @@ input, select, textarea { font: inherit; color: inherit; }
 
 /* Scroll cue arrow */
 @keyframes nudge {
-  0%, 100% { transform: translateY(0); opacity: 0.6; }
-  50%      { transform: translateY(6px); opacity: 1; }
+
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+
+  50% {
+    transform: translateY(6px);
+    opacity: 1;
+  }
 }
+
 .scroll-cue {
   animation: nudge 2.4s var(--ease-fluid) infinite;
+}
+
+/* Reduced motion fallback */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  body {
+    animation: none;
+  }
+
+  .marquee-track {
+    animation: none;
+  }
+}
+
+/* ================================================================
+   ODOMETER (StatCard)
+   ================================================================ */
+.odometer-container {
+  display: inline-flex;
+  overflow: hidden;
+  height: 1em;
+  line-height: 1;
+  vertical-align: baseline;
+}
+
+.odometer-digit {
+  display: inline-block;
+  height: 1em;
+  overflow: hidden;
+  text-align: center;
+}
+
+.odometer-digit-inner {
+  display: flex;
+  flex-direction: column;
+}
+
+.odometer-digit-inner>span {
+  height: 1em;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

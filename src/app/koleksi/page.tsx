@@ -133,7 +133,7 @@ function KoleksiContent() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 pb-24 pt-32 sm:px-8">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-3 pb-24 pt-28 sm:px-6">
       {/* ── Header ─────────────────────────────────────────── */}
       <motion.header
         initial={{ opacity: 0, y: 16 }}
@@ -232,7 +232,7 @@ function KoleksiContent() {
             hidden: {},
             show: { transition: { staggerChildren: 0.06 } },
           }}
-          className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
+          className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3"
         >
           <AnimatePresence mode="popLayout">
             {filtered.map((b) => (
@@ -375,7 +375,7 @@ function Modal({ title, onClose, children, open }: ModalProps) {
               background: "rgba(255,255,255,0.92)",
               backdropFilter: "blur(36px) saturate(1.6)",
               WebkitBackdropFilter: "blur(36px) saturate(1.6)",
-              borderRadius: "2rem",
+              borderRadius: "1.25rem",
               border: "1px solid rgba(255,255,255,0.95)",
               boxShadow:
                 "0 30px 80px rgba(11,25,87,0.22), 0 8px 28px rgba(11,25,87,0.08)",

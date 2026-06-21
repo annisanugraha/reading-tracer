@@ -1,8 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef } from "react";
-import { motion, useMotionValue, useSpring, type Variants } from "framer-motion";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  motion,
+  useMotionValue,
+  useSpring,
+  useScroll,
+  useTransform,
+  type Variants,
+} from "framer-motion";
 import { useBooks } from "@/hooks/useBooks";
 import { BookCard } from "@/components/book/BookCard";
 import { StatCard } from "@/components/book/StatCard";
@@ -11,7 +18,11 @@ import { EmptyState } from "@/components/book/EmptyState";
 /* ── Motion presets ─────────────────────────────────────────── */
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 1, ease: [0.22, 1, 0.36, 1] } },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 1, ease: [0.22, 1, 0.36, 1] },
+  },
 };
 const stagger = (delay = 0): Variants => ({
   hidden: {},
@@ -24,6 +35,17 @@ const itemSpring: Variants = {
     y: 0,
     scale: 1,
     transition: { type: "spring", stiffness: 200, damping: 22 },
+  },
+};
+
+/* Character animation variant */
+const charVariant: Variants = {
+  hidden: { opacity: 0, y: 20, rotate: 4 },
+  show: {
+    opacity: 1,
+    y: 0,
+    rotate: 0,
+    transition: { type: "spring", stiffness: 180, damping: 18 },
   },
 };
 
@@ -54,6 +76,120 @@ function SectionHeading({
         </Link>
       )}
     </div>
+  );
+}
+
+/* ── Floating background words ──────────────────────────────── */
+const FLOATING_WORDS = [
+  "membaca", "imajinasi", "petualangan", "halaman",
+  "cerita", "dunia", "kata-kata", "mimpi",
+];
+
+function FloatingWords() {
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+      {FLOATING_WORDS.map((word, i) => (
+        <motion.span
+          key={i}
+          className="absolute font-display italic select-none"
+          style={{
+            left: `${10 + (i * 12) % 80}%`,
+            top: `${15 + (i * 17) % 65}%`,
+            fontSize: `${1.5 + (i % 3) * 0.8}rem`,
+            color: i % 2 === 0 ? "var(--blue-soft)" : "var(--pink-soft)",
+            opacity: 0,
+          }}
+          animate={{
+            opacity: [0, 0.06, 0.06, 0],
+            y: [0, -30],
+            rotate: [(i % 2 ? -3 : 3), (i % 2 ? 3 : -3)],
+          }}
+          transition={{
+            duration: 12 + i * 2,
+            delay: i * 1.8,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+        >
+          {word}
+        </motion.span>
+      ))}
+    </div>
+  );
+}
+
+/* ── Decorative SVG flourish ───────────────────────────────── */
+function SvgFlourish() {
+  return (
+    <svg
+      className="pointer-events-none absolute bottom-12 left-1/2 -translate-x-1/2 w-48 h-6 opacity-30"
+      viewBox="0 0 200 24"
+      fill="none"
+      aria-hidden
+    >
+      <motion.path
+        d="M10 12 Q50 2 100 12 Q150 22 190 12"
+        stroke="var(--blue-soft)"
+        strokeWidth="0.8"
+        strokeLinecap="round"
+        fill="none"
+        initial={{ pathLength: 0, opacity: 0 }}
+        animate={{ pathLength: 1, opacity: 1 }}
+        transition={{ duration: 2, delay: 1.5, ease: [0.22, 1, 0.36, 1] }}
+      />
+      <motion.circle
+        cx="100"
+        cy="12"
+        r="2"
+        fill="var(--pink-soft)"
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ delay: 2.5, type: "spring", stiffness: 300, damping: 20 }}
+      />
+    </svg>
+  );
+}
+
+/* ── Animated text with per-character stagger ──────────────── */
+function AnimatedLine({
+  text,
+  className = "",
+  style = {},
+  delay = 0,
+}: {
+  text: string;
+  className?: string;
+  style?: React.CSSProperties;
+  delay?: number;
+}) {
+  const words = text.split(" ");
+  return (
+    <motion.span
+      className={`block ${className}`}
+      style={style}
+      initial="hidden"
+      animate="show"
+      variants={{
+        hidden: {},
+        show: {
+          transition: { staggerChildren: 0.03, delayChildren: delay },
+        },
+      }}
+    >
+      {words.map((word, wi) => (
+        <span key={wi} className="inline-block mr-[0.25em]">
+          {word.split("").map((char, ci) => (
+            <motion.span
+              key={ci}
+              className="inline-block"
+              variants={charVariant}
+            >
+              {char}
+            </motion.span>
+          ))}
+        </span>
+      ))}
+    </motion.span>
   );
 }
 
@@ -95,7 +231,10 @@ export default function DashboardPage() {
           }}
         />
         <p className="label-meta opacity-70">
-          <i className="ri-loader-4-line mr-2" style={{ fontSize: "0.85rem" }} />
+          <i
+            className="ri-loader-4-line mr-2"
+            style={{ fontSize: "0.85rem" }}
+          />
           Menyiapkan ateliermu…
         </p>
       </div>
@@ -104,8 +243,8 @@ export default function DashboardPage() {
 
   return (
     <>
-      {/* ════ HERO — viewport-fit, no scroll needed ════════════ */}
-      <div className="mx-auto w-full max-w-6xl px-4 pt-20 sm:px-8 sm:pt-24">
+      {/* ════ HERO ════════════════════════════════════════════ */}
+      <div className="mx-auto w-full max-w-6xl px-3 pt-20 sm:px-6 sm:pt-24">
         <HeroSection
           totalBuku={statistik.total}
           sedang={statistik.sedang}
@@ -113,9 +252,9 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* ════ REST OF PAGE — scrollable (original layout) ═════ */}
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-20 px-4 pb-24 sm:px-8">
-        {/* ════ STATISTIK ═══════════════════════════════════════ */}
+      {/* ════ REST OF PAGE ════════════════════════════════════ */}
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-20 px-3 pb-24 sm:px-6">
+        {/* ════ STATISTIK ═══════════════════════════════════ */}
         <section aria-label="Statistik">
           <SectionHeading
             eyebrow="Atelier Notes"
@@ -130,7 +269,7 @@ export default function DashboardPage() {
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, margin: "-80px" }}
-            className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5"
+            className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5"
           >
             <motion.div variants={itemSpring}>
               <StatCard
@@ -175,7 +314,9 @@ export default function DashboardPage() {
               <StatCard
                 label="Rata-rata Rating"
                 value={
-                  statistik.rataRating > 0 ? `★ ${statistik.rataRating}` : "—"
+                  statistik.rataRating > 0
+                    ? `★ ${statistik.rataRating}`
+                    : "—"
                 }
                 hint={
                   statistik.rataRating > 0
@@ -189,13 +330,13 @@ export default function DashboardPage() {
           </motion.div>
         </section>
 
-        {/* ════ SEDANG DIBACA ═════════════════════════════════ */}
+        {/* ════ SEDANG DIBACA ══════════════════════════════ */}
         <section aria-label="Sedang dibaca">
           <SectionHeading
             eyebrow="In Progress"
             title={
               <>
-                Sedang <em>kupeluk</em>
+                Lembar yang <em>terbuka</em>
               </>
             }
             href="/koleksi?status=sedang-dibaca"
@@ -219,7 +360,7 @@ export default function DashboardPage() {
               initial="hidden"
               whileInView="show"
               viewport={{ once: true, margin: "-60px" }}
-              className="grid grid-cols-1 gap-4 md:grid-cols-2"
+              className="grid grid-cols-1 gap-3 md:grid-cols-2"
             >
               {sedangDibaca.map((b) => (
                 <motion.div key={b.id} variants={itemSpring}>
@@ -238,13 +379,13 @@ export default function DashboardPage() {
           )}
         </section>
 
-        {/* ════ BARU SELESAI ══════════════════════════════════ */}
+        {/* ════ BARU SELESAI ═══════════════════════════════ */}
         <section aria-label="Baru selesai">
           <SectionHeading
             eyebrow="Recently Closed"
             title={
               <>
-                Baru saja <em>kusinggah</em>
+                Kisah yang <em>usai</em>
               </>
             }
             href="/review"
@@ -262,7 +403,7 @@ export default function DashboardPage() {
               initial="hidden"
               whileInView="show"
               viewport={{ once: true, margin: "-60px" }}
-              className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+              className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3"
             >
               {baruSelesai.map((b) => (
                 <motion.div key={b.id} variants={itemSpring}>
@@ -284,7 +425,7 @@ export default function DashboardPage() {
   );
 }
 
-/* ── Hero — viewport-fit, contained in one screen ───────────── */
+/* ── Hero — viewport-fit, kinetic typography ────────────────── */
 function HeroSection({
   totalBuku,
   sedang,
@@ -299,6 +440,12 @@ function HeroSection({
   const my = useMotionValue(0);
   const smx = useSpring(mx, { stiffness: 60, damping: 18 });
   const smy = useSpring(my, { stiffness: 60, damping: 18 });
+
+  /* Scroll-triggered fold */
+  const { scrollY } = useScroll();
+  const foldRotate = useTransform(scrollY, [0, 400], [0, -3]);
+  const foldScale = useTransform(scrollY, [0, 400], [1, 0.97]);
+  const foldOpacity = useTransform(scrollY, [200, 500], [1, 0]);
 
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
@@ -315,59 +462,99 @@ function HeroSection({
   }, [mx, my]);
 
   return (
-    <section
+    <motion.section
       ref={heroRef}
       className="relative mb-16 flex w-full flex-col overflow-hidden sm:mb-20"
       style={{
         height: "calc(100vh - 7rem)",
         minHeight: "500px",
         maxHeight: "780px",
+        perspective: "1200px",
+        rotateX: foldRotate,
+        scale: foldScale,
+        opacity: foldOpacity,
       }}
     >
-      {/* Soft gradient backdrop */}
+      {/* Soft gradient backdrop with morph shapes */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 overflow-hidden rounded-[2.5rem]"
+        className="pointer-events-none absolute inset-0 overflow-hidden"
         style={{
+          borderRadius: "1.5rem",
           background:
             "linear-gradient(150deg, rgba(194,225,252,0.4) 0%, rgba(255,255,255,0.85) 45%, rgba(244,209,255,0.4) 100%)",
         }}
       >
+        {/* Floating literary words */}
+        <FloatingWords />
+
+        {/* Morphing blobs with multi-layer parallax */}
         <motion.div
           aria-hidden
           style={{ x: smx, y: smy }}
-          className="blob-a absolute -right-32 -top-24 h-[22rem] w-[22rem] rounded-full"
+          className="blob-a morph-shape absolute -right-32 -top-24 h-[22rem] w-[22rem]"
         >
           <div
-            className="h-full w-full rounded-full"
+            className="h-full w-full"
             style={{
               background:
                 "radial-gradient(circle, rgba(194,225,252,0.55) 0%, transparent 65%)",
               filter: "blur(50px)",
+              borderRadius: "inherit",
             }}
           />
         </motion.div>
         <motion.div
           aria-hidden
-          className="blob-b absolute -bottom-24 -left-20 h-[20rem] w-[20rem]"
+          style={{
+            x: useTransform(smx, (v) => v * -0.6),
+            y: useTransform(smy, (v) => v * -0.6),
+          }}
+          className="blob-b morph-shape absolute -bottom-24 -left-20 h-[20rem] w-[20rem]"
         >
           <div
-            className="h-full w-full rounded-full"
+            className="h-full w-full"
             style={{
               background:
                 "radial-gradient(circle, rgba(255,194,217,0.45) 0%, transparent 65%)",
               filter: "blur(60px)",
+              borderRadius: "inherit",
+            }}
+          />
+        </motion.div>
+
+        {/* Third subtle blob */}
+        <motion.div
+          aria-hidden
+          style={{
+            x: useTransform(smx, (v) => v * 0.4),
+            y: useTransform(smy, (v) => v * 0.4),
+          }}
+          className="blob-c morph-shape absolute top-1/2 left-1/3 h-[14rem] w-[14rem]"
+        >
+          <div
+            className="h-full w-full"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(244,209,255,0.3) 0%, transparent 60%)",
+              filter: "blur(50px)",
+              borderRadius: "inherit",
             }}
           />
         </motion.div>
       </div>
 
-      {/* Hero content — vertically centered within viewport */}
-      <div className="relative z-10 flex w-full flex-1 flex-col items-center justify-center px-4 pb-5 pt-8 text-center sm:pb-7 sm:pt-10">
+      {/* Hero content — vertically centered */}
+      <div className="relative z-10 flex w-full flex-1 flex-col items-center justify-center px-3 pb-5 pt-8 text-center sm:pb-7 sm:pt-10">
+        {/* Top badge */}
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+          initial={{ opacity: 0, y: 12, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{
+            duration: 0.7,
+            ease: [0.22, 1, 0.36, 1],
+            delay: 0.1,
+          }}
           className="mb-4 inline-flex items-center gap-2 px-3.5 py-1.5"
           style={{
             background: "rgba(255,255,255,0.65)",
@@ -394,43 +581,67 @@ function HeroSection({
           </span>
         </motion.div>
 
-        <motion.h1
-          initial="hidden"
-          animate="show"
-          variants={stagger(0.25)}
-          className="heading-hero text-balance"
+        {/* H1 — per-character animation for key words */}
+        <h1
+          className="heading-hero heading-breathe text-balance"
           style={{
             fontSize: "clamp(2rem, 4.8vw, 3.6rem)",
           }}
         >
-          <motion.span variants={fadeUp} className="block">
-            Sebuah atelier
-          </motion.span>
-          <motion.span variants={fadeUp} className="block">
-            kecil untuk{" "}
-            <em
-              className="font-display italic"
+          <AnimatedLine text="Sebuah atelier" delay={0.3} />
+          <span className="block">
+            <AnimatedLine text="kecil untuk" delay={0.5} className="inline" />
+            {" "}
+            <motion.em
+              className="font-display italic inline-block"
               style={{ color: "var(--pink-soft)" }}
+              initial={{ opacity: 0, y: 20, scale: 1.1 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{
+                type: "spring",
+                stiffness: 150,
+                damping: 15,
+                delay: 0.8,
+              }}
             >
               buku-buku
-            </em>
-          </motion.span>
-          <motion.span variants={fadeUp} className="block">
-            yang pernah kamu{" "}
-            <em
-              className="font-display italic"
+            </motion.em>
+          </span>
+          <span className="block">
+            <AnimatedLine text="yang pernah kamu" delay={0.7} className="inline" />
+            {" "}
+            <motion.em
+              className="font-display italic inline-block"
               style={{ color: "var(--blue-soft)" }}
+              initial={{ opacity: 0, y: 20, rotate: -4 }}
+              animate={{ opacity: 1, y: 0, rotate: 0 }}
+              transition={{
+                type: "spring",
+                stiffness: 150,
+                damping: 15,
+                delay: 1.0,
+              }}
             >
               sentuh
-            </em>
-            .
-          </motion.span>
-        </motion.h1>
+            </motion.em>
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.2 }}
+            >
+              .
+            </motion.span>
+          </span>
+        </h1>
 
         <motion.p
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.7 }}
+          transition={{
+            duration: 0.8,
+            ease: [0.22, 1, 0.36, 1],
+            delay: 1.1,
+          }}
           className="body-lead mt-4 max-w-md text-balance"
           style={{ fontSize: "clamp(0.92rem, 1.05vw, 1rem)" }}
         >
@@ -441,98 +652,34 @@ function HeroSection({
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.9 }}
+          transition={{
+            duration: 0.8,
+            ease: [0.22, 1, 0.36, 1],
+            delay: 1.3,
+          }}
           className="mt-6 flex flex-wrap items-center justify-center gap-2.5"
         >
           <Link href="/koleksi" className="btn btn-ink">
-            <i className="ri-book-open-line" style={{ fontSize: "1rem" }} />
+            <i
+              className="ri-book-open-line"
+              style={{ fontSize: "1rem" }}
+            />
             Buka Koleksi
           </Link>
           <Link href="/review" className="btn btn-paper">
-            <i className="ri-quill-pen-line" style={{ fontSize: "1rem" }} />
+            <i
+              className="ri-quill-pen-line"
+              style={{ fontSize: "1rem" }}
+            />
             Lihat Review
           </Link>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 1.05 }}
-          className="mt-6 flex flex-wrap items-center justify-center gap-x-7 gap-y-3"
-        >
-          <SnapshotItem
-            label="buku"
-            value={totalBuku}
-            icon="ri-book-mark-line"
-          />
-          <Divider />
-          <SnapshotItem
-            label="dibaca"
-            value={sedang}
-            icon="ri-book-open-line"
-          />
-          <Divider />
-          <SnapshotItem
-            label="selesai"
-            value={selesai}
-            icon="ri-checkbox-circle-line"
-          />
-        </motion.div>
-      </div>
-    </section>
-  );
-}
 
-function Divider() {
-  return (
-    <span
-      aria-hidden
-      className="hidden h-5 w-px sm:block"
-      style={{ background: "var(--hairline-strong)" }}
-    />
-  );
-}
 
-function SnapshotItem({
-  label,
-  value,
-  icon,
-}: {
-  label: string;
-  value: number;
-  icon: string;
-}) {
-  return (
-    <motion.div
-      whileHover={{ y: -2 }}
-      transition={{ type: "spring", stiffness: 320, damping: 18 }}
-      className="flex items-center gap-2.5"
-    >
-      <span
-        className="flex h-8 w-8 items-center justify-center"
-        style={{
-          background: "rgba(255,255,255,0.7)",
-          border: "1px solid var(--hairline)",
-          borderRadius: "10px",
-          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9)",
-        }}
-      >
-        <i className={icon} style={{ fontSize: "0.88rem", color: "var(--navy)" }} />
-      </span>
-      <div className="flex flex-col leading-none">
-        <span
-          className="num-ticker font-display text-[1.05rem] font-normal"
-          style={{ color: "var(--navy)" }}
-        >
-          {value.toLocaleString("id-ID")}
-        </span>
-        <span
-          className="label-meta mt-0.5"
-          style={{ fontSize: "0.55rem", color: "var(--ink-light)" }}
-        >
-          {label}
-        </span>
+        {/* SVG flourish */}
+        <SvgFlourish />
       </div>
-    </motion.div>
+    </motion.section>
   );
 }
