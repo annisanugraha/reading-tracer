@@ -37,3 +37,6 @@ export type { SearchFilterBarProps, SortOption } from "./SearchFilterBar";
 
 export { Navbar } from "./Navbar";
 export { CursorGlow } from "./CursorGlow";
+export { PageTransition } from "./PageTransition";
+export { BookCover } from "./BookCover";
+export type { BookCoverProps } from "./BookCover";

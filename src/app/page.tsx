@@ -7,7 +7,6 @@ import { useBooks } from "@/hooks/useBooks";
 import { BookCard } from "@/components/book/BookCard";
 import { StatCard } from "@/components/book/StatCard";
 import { EmptyState } from "@/components/book/EmptyState";
-import { formatAngka } from "@/lib/utils";
 
 /* ── Motion presets ─────────────────────────────────────────── */
 const fadeUp: Variants = {
@@ -58,46 +57,6 @@ function SectionHeading({
   );
 }
 
-/* ── Animated sine wave for reading pulse ───────────────────── */
-function ReadingPulse() {
-  const path = useMotionValue(0);
-  useEffect(() => {
-    let frame = 0;
-    const tick = () => {
-      path.set((path.get() + 0.012) % 1);
-      frame = requestAnimationFrame(tick);
-    };
-    frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
-  }, [path]);
-  return (
-    <svg
-      viewBox="0 0 600 80"
-      preserveAspectRatio="none"
-      className="h-20 w-full"
-      aria-hidden
-    >
-      <motion.path
-        d="M0 40 Q 50 10 100 40 T 200 40 T 300 40 T 400 40 T 500 40 T 600 40"
-        stroke="url(#pulseGrad)"
-        strokeWidth="1.2"
-        fill="none"
-        strokeLinecap="round"
-        initial={{ pathLength: 0, opacity: 0 }}
-        animate={{ pathLength: 1, opacity: 0.7 }}
-        transition={{ duration: 2.4, ease: [0.22, 1, 0.36, 1] }}
-      />
-      <defs>
-        <linearGradient id="pulseGrad" x1="0" x2="1">
-          <stop offset="0%" stopColor="#5784E6" stopOpacity="0" />
-          <stop offset="50%" stopColor="#5784E6" stopOpacity="0.7" />
-          <stop offset="100%" stopColor="#FF99BE" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-    </svg>
-  );
-}
-
 /* ── Page ───────────────────────────────────────────────────── */
 export default function DashboardPage() {
   const { books, siap, statistik } = useBooks();
@@ -106,7 +65,9 @@ export default function DashboardPage() {
     () =>
       books
         .filter((b) => b.status === "sedang-dibaca")
-        .sort((a, b) => (b.tanggalMulaiBaca ?? "").localeCompare(a.tanggalMulaiBaca ?? "")),
+        .sort((a, b) =>
+          (b.tanggalMulaiBaca ?? "").localeCompare(a.tanggalMulaiBaca ?? "")
+        ),
     [books]
   );
 
@@ -114,7 +75,9 @@ export default function DashboardPage() {
     () =>
       books
         .filter((b) => b.status === "selesai")
-        .sort((a, b) => (b.tanggalSelesai ?? "").localeCompare(a.tanggalSelesai ?? ""))
+        .sort((a, b) =>
+          (b.tanggalSelesai ?? "").localeCompare(a.tanggalSelesai ?? "")
+        )
         .slice(0, 6),
     [books]
   );
@@ -140,179 +103,188 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-20 px-4 pb-20 sm:px-8">
-      {/* ════ HERO ════════════════════════════════════════════════ */}
-      <HeroSection
-        totalBuku={statistik.total}
-        sedang={statistik.sedang}
-        selesai={statistik.selesai}
-      />
-
-      {/* ════ STATISTIK ══════════════════════════════════════════ */}
-      <section aria-label="Statistik">
-        <SectionHeading
-          eyebrow="Atelier Notes"
-          title={
-            <>
-              Angka-angka <em>dari rakmu</em>
-            </>
-          }
+    <>
+      {/* ════ HERO — viewport-fit, no scroll needed ════════════ */}
+      <div className="mx-auto w-full max-w-6xl px-4 pt-20 sm:px-8 sm:pt-24">
+        <HeroSection
+          totalBuku={statistik.total}
+          sedang={statistik.sedang}
+          selesai={statistik.selesai}
         />
-        <motion.div
-          variants={stagger()}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: "-80px" }}
-          className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5"
-        >
-          <motion.div variants={itemSpring}>
-            <StatCard
-              label="Total Buku"
-              value={statistik.total}
-              hint={`${statistik.selesai} selesai`}
-              icon="ri-book-shelf-line"
-              accent="pale"
-            />
-          </motion.div>
-          <motion.div variants={itemSpring}>
-            <StatCard
-              label="Sedang Dibaca"
-              value={statistik.sedang}
-              hint="Aktif sekarang"
-              icon="ri-book-open-line"
-              accent="blue"
-            />
-          </motion.div>
-          <motion.div variants={itemSpring}>
-            <StatCard
-              label="Selesai"
-              value={statistik.selesai}
-              hint={`${statistik.berhenti} berhenti`}
-              icon="ri-checkbox-circle-line"
-              accent="pink"
-            />
-          </motion.div>
-          <motion.div variants={itemSpring}>
-            <StatCard
-              label="Halaman Dibaca"
-              value={statistik.totalHalamanDibaca}
-              hint="sepanjang waktu"
-              icon="ri-file-text-line"
-              accent="mauve"
-            />
-          </motion.div>
-          <motion.div
-            variants={itemSpring}
-            className="col-span-2 sm:col-span-1"
-          >
-            <StatCard
-              label="Rata-rata Rating"
-              value={statistik.rataRating > 0 ? `★ ${statistik.rataRating}` : "—"}
-              hint={
-                statistik.rataRating > 0 ? "dari reviewmu" : "belum ada review"
-              }
-              icon="ri-star-half-line"
-              accent="mute"
-            />
-          </motion.div>
-        </motion.div>
-      </section>
+      </div>
 
-      {/* ════ SEDANG DIBACA ═════════════════════════════════════ */}
-      <section aria-label="Sedang dibaca">
-        <SectionHeading
-          eyebrow="In Progress"
-          title={
-            <>
-              Sedang <em>kupeluk</em>
-            </>
-          }
-          href="/koleksi?status=sedang-dibaca"
-          linkLabel="Lihat semua"
-        />
-        {sedangDibaca.length === 0 ? (
-          <EmptyState
-            variant="books"
-            title="Belum ada buku yang sedang dibaca"
-            description="Tandai buku sebagai Sedang Dibaca untuk mulai mencatat progress harianmu."
-            action={
-              <Link href="/koleksi" className="btn btn-ink">
-                <i className="ri-book-open-line" />
-                Buka Koleksi
-              </Link>
+      {/* ════ REST OF PAGE — scrollable (original layout) ═════ */}
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-20 px-4 pb-24 sm:px-8">
+        {/* ════ STATISTIK ═══════════════════════════════════════ */}
+        <section aria-label="Statistik">
+          <SectionHeading
+            eyebrow="Atelier Notes"
+            title={
+              <>
+                Angka-angka <em>dari rakmu</em>
+              </>
             }
           />
-        ) : (
           <motion.div
             variants={stagger()}
             initial="hidden"
             whileInView="show"
-            viewport={{ once: true, margin: "-60px" }}
-            className="grid grid-cols-1 gap-4 md:grid-cols-2"
+            viewport={{ once: true, margin: "-80px" }}
+            className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5"
           >
-            {sedangDibaca.map((b) => (
-              <motion.div key={b.id} variants={itemSpring}>
-                <BookCard
-                  cover={b.coverUrl}
-                  judul={b.judul}
-                  penulis={b.penulis}
-                  status={b.status}
-                  totalHalaman={b.totalHalaman}
-                  halamanTerbaca={b.halamanTerbaca}
-                  href={`/koleksi/${b.id}`}
-                />
-              </motion.div>
-            ))}
+            <motion.div variants={itemSpring}>
+              <StatCard
+                label="Total Buku"
+                value={statistik.total}
+                hint={`${statistik.selesai} selesai`}
+                icon="ri-book-shelf-line"
+                accent="pale"
+              />
+            </motion.div>
+            <motion.div variants={itemSpring}>
+              <StatCard
+                label="Sedang Dibaca"
+                value={statistik.sedang}
+                hint="Aktif sekarang"
+                icon="ri-book-open-line"
+                accent="blue"
+              />
+            </motion.div>
+            <motion.div variants={itemSpring}>
+              <StatCard
+                label="Selesai"
+                value={statistik.selesai}
+                hint={`${statistik.berhenti} berhenti`}
+                icon="ri-checkbox-circle-line"
+                accent="pink"
+              />
+            </motion.div>
+            <motion.div variants={itemSpring}>
+              <StatCard
+                label="Halaman Dibaca"
+                value={statistik.totalHalamanDibaca}
+                hint="sepanjang waktu"
+                icon="ri-file-text-line"
+                accent="mauve"
+              />
+            </motion.div>
+            <motion.div
+              variants={itemSpring}
+              className="col-span-2 sm:col-span-1"
+            >
+              <StatCard
+                label="Rata-rata Rating"
+                value={
+                  statistik.rataRating > 0 ? `★ ${statistik.rataRating}` : "—"
+                }
+                hint={
+                  statistik.rataRating > 0
+                    ? "dari reviewmu"
+                    : "belum ada review"
+                }
+                icon="ri-star-half-line"
+                accent="mute"
+              />
+            </motion.div>
           </motion.div>
-        )}
-      </section>
+        </section>
 
-      {/* ════ BARU SELESAI ══════════════════════════════════════ */}
-      <section aria-label="Baru selesai">
-        <SectionHeading
-          eyebrow="Recently Closed"
-          title={
-            <>
-              Baru saja <em>kusinggah</em>
-            </>
-          }
-          href="/review"
-          linkLabel="Lihat review"
-        />
-        {baruSelesai.length === 0 ? (
-          <EmptyState
-            variant="review"
-            title="Belum ada buku yang selesai dibaca"
-            description="Setelah menandai sebuah buku Selesai dan menulis review, buku akan muncul di sini."
+        {/* ════ SEDANG DIBACA ═════════════════════════════════ */}
+        <section aria-label="Sedang dibaca">
+          <SectionHeading
+            eyebrow="In Progress"
+            title={
+              <>
+                Sedang <em>kupeluk</em>
+              </>
+            }
+            href="/koleksi?status=sedang-dibaca"
+            linkLabel="Lihat semua"
           />
-        ) : (
-          <motion.div
-            variants={stagger(0.05)}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, margin: "-60px" }}
-            className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
-          >
-            {baruSelesai.map((b) => (
-              <motion.div key={b.id} variants={itemSpring}>
-                <BookCard
-                  cover={b.coverUrl}
-                  judul={b.judul}
-                  penulis={b.penulis}
-                  status={b.status}
-                  rating={b.review?.rating}
-                  href={`/koleksi/${b.id}`}
-                />
-              </motion.div>
-            ))}
-          </motion.div>
-        )}
-      </section>
-    </div>
+          {sedangDibaca.length === 0 ? (
+            <EmptyState
+              variant="books"
+              title="Belum ada buku yang sedang dibaca"
+              description="Tandai buku sebagai Sedang Dibaca untuk mulai mencatat progress harianmu."
+              action={
+                <Link href="/koleksi" className="btn btn-ink">
+                  <i className="ri-book-open-line" />
+                  Buka Koleksi
+                </Link>
+              }
+            />
+          ) : (
+            <motion.div
+              variants={stagger()}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-60px" }}
+              className="grid grid-cols-1 gap-4 md:grid-cols-2"
+            >
+              {sedangDibaca.map((b) => (
+                <motion.div key={b.id} variants={itemSpring}>
+                  <BookCard
+                    cover={b.coverUrl}
+                    judul={b.judul}
+                    penulis={b.penulis}
+                    status={b.status}
+                    totalHalaman={b.totalHalaman}
+                    halamanTerbaca={b.halamanTerbaca}
+                    href={`/koleksi/${b.id}`}
+                  />
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+        </section>
+
+        {/* ════ BARU SELESAI ══════════════════════════════════ */}
+        <section aria-label="Baru selesai">
+          <SectionHeading
+            eyebrow="Recently Closed"
+            title={
+              <>
+                Baru saja <em>kusinggah</em>
+              </>
+            }
+            href="/review"
+            linkLabel="Lihat review"
+          />
+          {baruSelesai.length === 0 ? (
+            <EmptyState
+              variant="review"
+              title="Belum ada buku yang selesai dibaca"
+              description="Setelah menandai sebuah buku Selesai dan menulis review, buku akan muncul di sini."
+            />
+          ) : (
+            <motion.div
+              variants={stagger(0.05)}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-60px" }}
+              className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+            >
+              {baruSelesai.map((b) => (
+                <motion.div key={b.id} variants={itemSpring}>
+                  <BookCard
+                    cover={b.coverUrl}
+                    judul={b.judul}
+                    penulis={b.penulis}
+                    status={b.status}
+                    rating={b.review?.rating}
+                    href={`/koleksi/${b.id}`}
+                  />
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+        </section>
+      </div>
+    </>
   );
 }
 
-/* ── Hero ──────────────────────────────────────────────────── */
+/* ── Hero — viewport-fit, contained in one screen ───────────── */
 function HeroSection({
   totalBuku,
   sedang,
@@ -335,8 +307,8 @@ function HeroSection({
       const rect = el.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width - 0.5;
       const y = (e.clientY - rect.top) / rect.height - 0.5;
-      mx.set(x * 30);
-      my.set(y * 30);
+      mx.set(x * 26);
+      my.set(y * 26);
     };
     window.addEventListener("mousemove", onMove);
     return () => window.removeEventListener("mousemove", onMove);
@@ -345,22 +317,26 @@ function HeroSection({
   return (
     <section
       ref={heroRef}
-      className="relative -mt-2 flex w-full flex-col overflow-hidden"
+      className="relative mb-16 flex w-full flex-col overflow-hidden sm:mb-20"
+      style={{
+        height: "calc(100vh - 7rem)",
+        minHeight: "500px",
+        maxHeight: "780px",
+      }}
     >
       {/* Soft gradient backdrop */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 overflow-hidden rounded-[3rem]"
+        className="pointer-events-none absolute inset-0 overflow-hidden rounded-[2.5rem]"
         style={{
           background:
             "linear-gradient(150deg, rgba(194,225,252,0.4) 0%, rgba(255,255,255,0.85) 45%, rgba(244,209,255,0.4) 100%)",
         }}
       >
-        {/* Mouse-following blobs */}
         <motion.div
           aria-hidden
           style={{ x: smx, y: smy }}
-          className="blob-a absolute -right-32 -top-32 h-[26rem] w-[26rem] rounded-full"
+          className="blob-a absolute -right-32 -top-24 h-[22rem] w-[22rem] rounded-full"
         >
           <div
             className="h-full w-full rounded-full"
@@ -373,8 +349,7 @@ function HeroSection({
         </motion.div>
         <motion.div
           aria-hidden
-          style={{ x: useMotionValue(0), y: useMotionValue(0) }}
-          className="blob-b absolute -bottom-32 -left-20 h-[22rem] w-[22rem]"
+          className="blob-b absolute -bottom-24 -left-20 h-[20rem] w-[20rem]"
         >
           <div
             className="h-full w-full rounded-full"
@@ -385,28 +360,15 @@ function HeroSection({
             }}
           />
         </motion.div>
-        <motion.div
-          aria-hidden
-          className="blob-c absolute right-1/3 top-1/2 h-48 w-48"
-        >
-          <div
-            className="h-full w-full rounded-full"
-            style={{
-              background:
-                "radial-gradient(circle, rgba(244,209,255,0.35) 0%, transparent 65%)",
-              filter: "blur(40px)",
-            }}
-          />
-        </motion.div>
       </div>
 
-      {/* Hero content */}
-      <div className="relative z-10 mx-auto flex w-full max-w-4xl flex-col items-center px-2 py-24 text-center sm:py-32">
+      {/* Hero content — vertically centered within viewport */}
+      <div className="relative z-10 flex w-full flex-1 flex-col items-center justify-center px-4 pb-5 pt-8 text-center sm:pb-7 sm:pt-10">
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-          className="mb-7 inline-flex items-center gap-2 px-4 py-1.5"
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+          className="mb-4 inline-flex items-center gap-2 px-3.5 py-1.5"
           style={{
             background: "rgba(255,255,255,0.65)",
             backdropFilter: "blur(12px)",
@@ -426,19 +388,19 @@ function HeroSection({
           />
           <span
             className="label-meta"
-            style={{ fontSize: "0.62rem", color: "var(--navy)" }}
+            style={{ fontSize: "0.6rem", color: "var(--navy)" }}
           >
-            Reading Atelier · Est. {new Date().getFullYear()}
+            Reading Atelier · {new Date().getFullYear()}
           </span>
         </motion.div>
 
         <motion.h1
           initial="hidden"
           animate="show"
-          variants={stagger(0.4)}
+          variants={stagger(0.25)}
           className="heading-hero text-balance"
           style={{
-            fontSize: "clamp(2.6rem, 7vw, 5.2rem)",
+            fontSize: "clamp(2rem, 4.8vw, 3.6rem)",
           }}
         >
           <motion.span variants={fadeUp} className="block">
@@ -446,13 +408,19 @@ function HeroSection({
           </motion.span>
           <motion.span variants={fadeUp} className="block">
             kecil untuk{" "}
-            <em className="font-display italic" style={{ color: "var(--pink-soft)" }}>
+            <em
+              className="font-display italic"
+              style={{ color: "var(--pink-soft)" }}
+            >
               buku-buku
             </em>
           </motion.span>
           <motion.span variants={fadeUp} className="block">
             yang pernah kamu{" "}
-            <em className="font-display italic" style={{ color: "var(--blue-soft)" }}>
+            <em
+              className="font-display italic"
+              style={{ color: "var(--blue-soft)" }}
+            >
               sentuh
             </em>
             .
@@ -460,29 +428,21 @@ function HeroSection({
         </motion.h1>
 
         <motion.p
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: 1,
-            ease: [0.22, 1, 0.36, 1],
-            delay: 0.9,
-          }}
-          className="body-lead mt-8 max-w-xl text-balance"
-          style={{ fontSize: "clamp(1rem, 1.4vw, 1.15rem)" }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.7 }}
+          className="body-lead mt-4 max-w-md text-balance"
+          style={{ fontSize: "clamp(0.92rem, 1.05vw, 1rem)" }}
         >
-          Catat setiap buku yang kamu temukan, lacak halaman yang sudah kamu
-          jelajahi, dan tuliskan kesan yang tak ingin kamu lupakan.
+          Catat koleksi, lacak progress, dan tulis review pribadimu — semua
+          tersimpan rapi di atelier kecilmu sendiri.
         </motion.p>
 
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: 0.9,
-            ease: [0.22, 1, 0.36, 1],
-            delay: 1.15,
-          }}
-          className="mt-10 flex flex-wrap items-center justify-center gap-3"
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.9 }}
+          className="mt-6 flex flex-wrap items-center justify-center gap-2.5"
         >
           <Link href="/koleksi" className="btn btn-ink">
             <i className="ri-book-open-line" style={{ fontSize: "1rem" }} />
@@ -494,83 +454,42 @@ function HeroSection({
           </Link>
         </motion.div>
 
-        {/* Live snapshot row */}
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: 0.9,
-            ease: [0.22, 1, 0.36, 1],
-            delay: 1.4,
-          }}
-          className="mt-14 flex flex-wrap items-center justify-center gap-x-10 gap-y-4"
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 1.05 }}
+          className="mt-6 flex flex-wrap items-center justify-center gap-x-7 gap-y-3"
         >
-          <SnapshotItem label="buku" value={totalBuku} icon="ri-book-mark-line" />
-          <span
-            aria-hidden
-            className="hidden h-6 w-px sm:block"
-            style={{ background: "var(--hairline-strong)" }}
+          <SnapshotItem
+            label="buku"
+            value={totalBuku}
+            icon="ri-book-mark-line"
           />
-          <SnapshotItem label="dibaca" value={sedang} icon="ri-book-open-line" />
-          <span
-            aria-hidden
-            className="hidden h-6 w-px sm:block"
-            style={{ background: "var(--hairline-strong)" }}
+          <Divider />
+          <SnapshotItem
+            label="dibaca"
+            value={sedang}
+            icon="ri-book-open-line"
           />
-          <SnapshotItem label="selesai" value={selesai} icon="ri-checkbox-circle-line" />
-        </motion.div>
-
-        {/* Reading pulse */}
-        {totalBuku > 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1.2, delay: 1.6 }}
-            className="mt-16 w-full max-w-md"
-          >
-            <div className="mb-2 flex items-center justify-center gap-2">
-              <span
-                className="h-1 w-1 rounded-full"
-                style={{ background: "var(--blue-soft)" }}
-                aria-hidden
-              />
-              <span
-                className="label-meta"
-                style={{ fontSize: "0.58rem", color: "var(--ink-light)" }}
-              >
-                Reading Pulse
-              </span>
-              <span
-                className="h-1 w-1 rounded-full"
-                style={{ background: "var(--blue-soft)" }}
-                aria-hidden
-              />
-            </div>
-            <ReadingPulse />
-          </motion.div>
-        )}
-
-        {/* Scroll cue */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 2 }}
-          className="mt-12 flex flex-col items-center gap-2"
-          style={{ color: "var(--ink-light)" }}
-        >
-          <span
-            className="label-meta"
-            style={{ fontSize: "0.58rem", opacity: 0.7 }}
-          >
-            Gulir ke bawah
-          </span>
-          <i
-            className="ri-arrow-down-line scroll-cue"
-            style={{ fontSize: "1.1rem" }}
+          <Divider />
+          <SnapshotItem
+            label="selesai"
+            value={selesai}
+            icon="ri-checkbox-circle-line"
           />
         </motion.div>
       </div>
     </section>
+  );
+}
+
+function Divider() {
+  return (
+    <span
+      aria-hidden
+      className="hidden h-5 w-px sm:block"
+      style={{ background: "var(--hairline-strong)" }}
+    />
   );
 }
 
@@ -598,18 +517,18 @@ function SnapshotItem({
           boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9)",
         }}
       >
-        <i className={icon} style={{ fontSize: "0.9rem", color: "var(--navy)" }} />
+        <i className={icon} style={{ fontSize: "0.88rem", color: "var(--navy)" }} />
       </span>
       <div className="flex flex-col leading-none">
         <span
-          className="num-ticker font-display text-[1.1rem] font-normal"
+          className="num-ticker font-display text-[1.05rem] font-normal"
           style={{ color: "var(--navy)" }}
         >
-          {formatAngka(value)}
+          {value.toLocaleString("id-ID")}
         </span>
         <span
           className="label-meta mt-0.5"
-          style={{ fontSize: "0.58rem", color: "var(--ink-light)" }}
+          style={{ fontSize: "0.55rem", color: "var(--ink-light)" }}
         >
           {label}
         </span>

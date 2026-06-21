@@ -3,6 +3,7 @@ import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/book/Navbar";
 import { CursorGlow } from "@/components/book/CursorGlow";
+import { PageTransition } from "@/components/book/PageTransition";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -46,7 +47,7 @@ export default function RootLayout({
         <CursorGlow />
         <Navbar />
         <main className="relative z-10 flex w-full flex-1 flex-col">
-          {children}
+          <PageTransition>{children}</PageTransition>
         </main>
         <footer className="relative z-10 px-6 py-10">
           <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 text-center">
