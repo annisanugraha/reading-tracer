@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useBooks } from "@/hooks/useBooks";
 import {
@@ -332,6 +333,9 @@ interface ModalProps {
 }
 
 function Modal({ title, onClose, children, open }: ModalProps) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => {
@@ -341,7 +345,9 @@ function Modal({ title, onClose, children, open }: ModalProps) {
     return () => window.removeEventListener("keydown", handler);
   }, [onClose, open]);
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {open && (
         <motion.div
@@ -410,6 +416,7 @@ function Modal({ title, onClose, children, open }: ModalProps) {
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

@@ -77,7 +77,7 @@ export function Navbar() {
       initial={{ y: -24, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-      className="fixed top-0 left-0 right-0 z-50 px-3 sm:px-6"
+      className="fixed top-0 left-0 right-0 z-40 px-3 sm:px-6"
       style={{ paddingTop: scrolled ? "0.6rem" : "1.1rem" }}
     >
       <motion.div
