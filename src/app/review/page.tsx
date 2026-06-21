@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { motion, LayoutGroup, AnimatePresence } from "framer-motion";
 import { useBooks } from "@/hooks/useBooks";
 import { EmptyState, ReviewCard } from "@/components/book";
 
@@ -40,89 +41,177 @@ export default function ReviewPage() {
 
   if (!siap) {
     return (
-      <div className="flex items-center justify-center py-20 text-sm text-zinc-500">
-        Memuat…
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            className="h-7 w-7 rounded-full"
+            style={{
+              border: "1.5px solid rgba(87,132,230,0.15)",
+              borderTopColor: "var(--blue-soft)",
+            }}
+          />
+          <p className="label-meta opacity-70">Memuat review…</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex w-full flex-col gap-8 pb-20 pt-28">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 pb-24 pt-32 sm:px-8">
+      {/* ── Header ─────────────────────────────────────────── */}
+      <motion.header
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+        className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between"
+      >
         <div>
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-            Riwayat Review
+          <div className="eyebrow mb-3">Personal Reviews</div>
+          <h1
+            className="heading-display text-balance"
+            style={{ fontSize: "clamp(2rem, 5vw, 3.2rem)" }}
+          >
+            Riwayat <em>review</em>
           </h1>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            {reviewed.length} buku sudah direview
-            {rataRating > 0 && ` · rata-rata ⭐ ${rataRating.toFixed(1)}`}
+          <p
+            className="body-lead mt-3 max-w-xl text-balance"
+            style={{ fontSize: "1rem" }}
+          >
+            {reviewed.length === 0
+              ? "Belum ada review yang tercatat"
+              : `${reviewed.length} buku sudah direview${
+                  rataRating > 0
+                    ? ` · rata-rata ★ ${rataRating.toFixed(1)}`
+                    : ""
+                }`}
           </p>
         </div>
+
         {reviewed.length > 0 && (
-          <div className="inline-flex rounded-lg border border-zinc-200 bg-white p-1 text-sm dark:border-zinc-700 dark:bg-zinc-900">
-            <button
-              type="button"
-              onClick={() => setSort("rating")}
-              className={`rounded-md px-3 py-1 font-medium ${
-                sort === "rating"
-                  ? "bg-zinc-900 text-white dark:bg-zinc-50 dark:text-zinc-900"
-                  : "text-zinc-600 dark:text-zinc-300"
-              }`}
-            >
-              Rating Tertinggi
-            </button>
-            <button
-              type="button"
-              onClick={() => setSort("terbaru")}
-              className={`rounded-md px-3 py-1 font-medium ${
-                sort === "terbaru"
-                  ? "bg-zinc-900 text-white dark:bg-zinc-50 dark:text-zinc-900"
-                  : "text-zinc-600 dark:text-zinc-300"
-              }`}
-            >
-              Terbaru
-            </button>
+          <div
+            className="relative flex items-center self-start"
+            style={{
+              background: "var(--paper-soft)",
+              border: "1px solid var(--hairline)",
+              borderRadius: "9999px",
+              padding: "3px",
+              boxShadow:
+                "inset 2px 2px 5px rgba(11,25,87,0.04), inset -1px -1px 3px rgba(255,255,255,0.7)",
+            }}
+          >
+            <LayoutGroup id="review-sort">
+              {(
+                [
+                  { key: "rating", label: "Rating Tertinggi" },
+                  { key: "terbaru", label: "Terbaru" },
+                ] as { key: SortMode; label: string }[]
+              ).map((opt) => {
+                const active = sort === opt.key;
+                return (
+                  <button
+                    key={opt.key}
+                    type="button"
+                    onClick={() => setSort(opt.key)}
+                    className="relative px-4 py-1.5"
+                    style={{
+                      fontSize: "0.75rem",
+                      fontWeight: active ? 600 : 500,
+                      color: active ? "var(--navy)" : "var(--ink-mid)",
+                      zIndex: 1,
+                    }}
+                  >
+                    {active && (
+                      <motion.span
+                        layoutId="review-sort-active"
+                        className="absolute inset-0 rounded-full"
+                        style={{
+                          background: "var(--surface)",
+                          boxShadow:
+                            "0 2px 6px rgba(11,25,87,0.08), inset 0 1px 0 rgba(255,255,255,0.9)",
+                        }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 380,
+                          damping: 28,
+                        }}
+                      />
+                    )}
+                    <span className="relative z-10">{opt.label}</span>
+                  </button>
+                );
+              })}
+            </LayoutGroup>
           </div>
         )}
-      </div>
+      </motion.header>
 
+      {/* ── Grid ───────────────────────────────────────────── */}
       {sorted.length === 0 ? (
         <EmptyState
-          icon="✍️"
+          variant="review"
           title="Belum ada review"
-          description="Tandai buku sebagai Selesai dan tulis感想 pertamamu untuk mulai mengisi halaman ini."
+          description="Tandai sebuah buku sebagai Selesai dan tulis kesan pertamamu — halaman ini akan mulai terisi dengan suara-suara kecilmu."
           action={
-            <Link
-              href="/koleksi"
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-            >
+            <Link href="/koleksi" className="btn btn-ink">
+              <i className="ri-book-open-line" />
               Buka Koleksi
             </Link>
           }
         />
       ) : (
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          {sorted.map((b) => (
-            <ReviewCard
-              key={b.id}
-              cover={b.coverUrl}
-              judul={b.judul}
-              penulis={b.penulis}
-              rating={b.review?.rating ?? 0}
-              teksReview={b.review?.text ?? ""}
-              tanggal={b.review?.updatedAt ?? b.tanggalSelesai ?? b.tanggalDitambahkan}
-              href={`/koleksi/${b.id}`}
-            />
-          ))}
-        </div>
+        <motion.div
+          initial="hidden"
+          animate="show"
+          variants={{
+            hidden: {},
+            show: { transition: { staggerChildren: 0.08 } },
+          }}
+          className="grid grid-cols-1 gap-5 md:grid-cols-2"
+        >
+          <AnimatePresence mode="popLayout">
+            {sorted.map((b) => (
+              <motion.div
+                key={b.id}
+                layout
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  show: {
+                    opacity: 1,
+                    y: 0,
+                    transition: {
+                      type: "spring",
+                      stiffness: 200,
+                      damping: 22,
+                    },
+                  },
+                }}
+                exit={{ opacity: 0, scale: 0.95 }}
+              >
+                <ReviewCard
+                  cover={b.coverUrl}
+                  judul={b.judul}
+                  penulis={b.penulis}
+                  rating={b.review?.rating ?? 0}
+                  teksReview={b.review?.text ?? ""}
+                  tanggal={
+                    b.review?.updatedAt ??
+                    b.tanggalSelesai ??
+                    b.tanggalDitambahkan
+                  }
+                  href={`/koleksi/${b.id}`}
+                />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
       )}
 
       <div className="flex justify-center pt-2">
-        <Link
-          href="/"
-          className="text-xs font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-        >
-          ← Kembali ke Dashboard
+        <Link href="/" className="section-link">
+          <i className="ri-arrow-left-line" style={{ fontSize: "0.85rem" }} />
+          Kembali ke Atelier
         </Link>
       </div>
     </div>

@@ -1,8 +1,8 @@
 "use client";
 
+import { motion, LayoutGroup } from "framer-motion";
 import type { BookStatus } from "@/lib/types";
 import { BOOK_STATUSES, STATUS_LABELS } from "@/lib/types";
-import { Search } from "lucide-react";
 
 export type SortOption = "terbaru" | "rating" | "judul";
 
@@ -31,7 +31,7 @@ const SORT_LABELS: Record<SortOption, string> = {
 };
 
 /**
- * Bar pencarian + filter + sort dengan soft premium glassmorphism style.
+ * SearchFilterBar — neumorphic surface dengan inset search & animated chip group.
  */
 export function SearchFilterBar({
   searchValue,
@@ -62,73 +62,110 @@ export function SearchFilterBar({
   };
 
   return (
-    <div
-      className={`flex flex-col gap-6 p-6 ${className}`}
-      style={{
-        background: "rgba(255, 255, 255, 0.65)",
-        backdropFilter: "blur(20px)",
-        WebkitBackdropFilter: "blur(20px)",
-        border: "1px solid rgba(255, 255, 255, 0.9)",
-        borderRadius: "2rem",
-        boxShadow: "0 4px 24px rgba(87, 132, 230, 0.08)",
-      }}
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      className={`surface-nm flex flex-col gap-5 p-6 ${className}`}
     >
       {/* Search + Sort */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         <div className="relative flex-1">
           <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-[var(--ink-light)]" />
+            <i
+              className="ri-search-line"
+              style={{ fontSize: "1rem", color: "var(--ink-light)" }}
+            />
           </div>
           <input
             type="search"
             value={searchValue}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Cari judul atau penulis…"
-            className="w-full bg-white/70 py-3 pl-10 pr-4 text-sm font-medium placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-[var(--blue-soft)] transition-all"
+            className="input-nm"
             style={{
-              color: "var(--navy)",
+              paddingLeft: "2.75rem",
+              paddingRight: "2.5rem",
               borderRadius: "9999px",
-              boxShadow: "inset 0 2px 4px rgba(0,0,0,0.02)",
-              border: "1px solid rgba(87, 132, 230, 0.15)",
             }}
             aria-label="Cari buku"
           />
+          {searchValue && (
+            <button
+              type="button"
+              onClick={() => onSearchChange("")}
+              aria-label="Bersihkan pencarian"
+              className="absolute inset-y-0 right-3 my-auto flex h-7 w-7 items-center justify-center rounded-full"
+              style={{ color: "var(--ink-mid)" }}
+            >
+              <i className="ri-close-line" style={{ fontSize: "1rem" }} />
+            </button>
+          )}
         </div>
-        <div className="flex items-center gap-3 shrink-0">
-          <label
-            htmlFor="sort-select"
-            className="text-xs font-semibold uppercase tracking-wider text-[var(--ink-mid)] whitespace-nowrap"
-          >
+
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="label-meta" style={{ fontSize: "0.62rem" }}>
             Urutkan
-          </label>
-          <select
-            id="sort-select"
-            value={sort}
-            onChange={(e) => onSortChange(e.target.value as SortOption)}
-            className="bg-white/70 px-4 py-2.5 text-sm font-semibold text-[var(--navy)] focus:outline-none focus:ring-2 focus:ring-[var(--blue-soft)] cursor-pointer transition-all"
+          </span>
+          <div
+            className="relative flex items-center"
             style={{
+              background: "var(--paper-soft)",
+              border: "1px solid var(--hairline)",
               borderRadius: "9999px",
-              border: "1px solid rgba(87, 132, 230, 0.15)",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
+              padding: "3px",
+              boxShadow:
+                "inset 2px 2px 5px rgba(11,25,87,0.04), inset -1px -1px 3px rgba(255,255,255,0.7)",
             }}
           >
-            {(Object.keys(SORT_LABELS) as SortOption[]).map((opt) => (
-              <option key={opt} value={opt}>
-                {SORT_LABELS[opt]}
-              </option>
-            ))}
-          </select>
+            <LayoutGroup id="sort-pills">
+              {(Object.keys(SORT_LABELS) as SortOption[]).map((opt) => {
+                const active = sort === opt;
+                return (
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={() => onSortChange(opt)}
+                    className="relative px-3 py-1.5"
+                    style={{
+                      fontSize: "0.72rem",
+                      fontWeight: active ? 600 : 500,
+                      color: active ? "var(--navy)" : "var(--ink-mid)",
+                      zIndex: 1,
+                    }}
+                  >
+                    {active && (
+                      <motion.span
+                        layoutId="sort-pill-active"
+                        className="absolute inset-0 rounded-full"
+                        style={{
+                          background: "var(--surface)",
+                          boxShadow:
+                            "0 2px 6px rgba(11,25,87,0.08), inset 0 1px 0 rgba(255,255,255,0.9)",
+                        }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 380,
+                          damping: 28,
+                        }}
+                      />
+                    )}
+                    <span className="relative z-10">{SORT_LABELS[opt]}</span>
+                  </button>
+                );
+              })}
+            </LayoutGroup>
+          </div>
         </div>
       </div>
 
-      {/* Filters Container */}
-      <div className="flex flex-col gap-4">
+      {/* Filters */}
+      <div className="flex flex-col gap-3.5">
         {/* Status */}
         <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:gap-4">
-          <span className="text-xs font-semibold uppercase tracking-wider text-[var(--ink-mid)] w-14 shrink-0">
-            Status
-          </span>
-          <div className="flex flex-wrap gap-2">
+          <span className="label-meta w-14 shrink-0">Status</span>
+          <div className="flex flex-wrap items-center gap-2">
             {BOOK_STATUSES.map((s) => {
               const active = filterStatus.includes(s);
               return (
@@ -136,27 +173,7 @@ export function SearchFilterBar({
                   key={s}
                   type="button"
                   onClick={() => toggleStatus(s)}
-                  className="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-200"
-                  style={{
-                    backgroundColor: active ? "#0B1957" : "rgba(255, 255, 255, 0.7)",
-                    color: active ? "#FFFFFF" : "var(--ink-mid)",
-                    border: active ? "1.5px solid #0B1957" : "1.5px solid rgba(87, 132, 230, 0.2)",
-                    boxShadow: active ? "0 2px 8px rgba(11,25,87,0.2)" : "none",
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!active) {
-                      e.currentTarget.style.backgroundColor = "rgba(194, 225, 252, 0.5)";
-                      e.currentTarget.style.color = "#0B1957";
-                      e.currentTarget.style.borderColor = "rgba(87, 132, 230, 0.4)";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!active) {
-                      e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.7)";
-                      e.currentTarget.style.color = "var(--ink-mid)";
-                      e.currentTarget.style.borderColor = "rgba(87, 132, 230, 0.2)";
-                    }
-                  }}
+                  className="chip"
                   aria-pressed={active}
                 >
                   {STATUS_LABELS[s]}
@@ -167,7 +184,7 @@ export function SearchFilterBar({
               <button
                 type="button"
                 onClick={() => onFilterStatusChange([])}
-                className="text-xs font-semibold text-[var(--ink-light)] hover:text-[var(--pink-hot)] px-2 transition-colors"
+                className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-[var(--ink-light)] hover:text-[var(--pink-soft)] transition-colors px-2"
               >
                 Reset
               </button>
@@ -178,10 +195,8 @@ export function SearchFilterBar({
         {/* Genre */}
         {genreOptions.length > 0 && (
           <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:gap-4">
-            <span className="text-xs font-semibold uppercase tracking-wider text-[var(--ink-mid)] w-14 shrink-0">
-              Genre
-            </span>
-            <div className="flex flex-wrap gap-2">
+            <span className="label-meta w-14 shrink-0">Genre</span>
+            <div className="flex flex-wrap items-center gap-2">
               {genreOptions.map((g) => {
                 const active = filterGenre.includes(g);
                 return (
@@ -189,27 +204,7 @@ export function SearchFilterBar({
                     key={g}
                     type="button"
                     onClick={() => toggleGenre(g)}
-                    className="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide capitalize transition-all duration-200"
-                    style={{
-                      backgroundColor: active ? "#0B1957" : "rgba(255, 255, 255, 0.7)",
-                      color: active ? "#FFFFFF" : "var(--ink-mid)",
-                      border: active ? "1.5px solid #0B1957" : "1.5px solid rgba(87, 132, 230, 0.2)",
-                      boxShadow: active ? "0 2px 8px rgba(11,25,87,0.2)" : "none",
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!active) {
-                        e.currentTarget.style.backgroundColor = "rgba(194, 225, 252, 0.5)";
-                        e.currentTarget.style.color = "#0B1957";
-                        e.currentTarget.style.borderColor = "rgba(87, 132, 230, 0.4)";
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!active) {
-                        e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.7)";
-                        e.currentTarget.style.color = "var(--ink-mid)";
-                        e.currentTarget.style.borderColor = "rgba(87, 132, 230, 0.2)";
-                      }
-                    }}
+                    className="chip capitalize"
                     aria-pressed={active}
                   >
                     {g}
@@ -220,7 +215,7 @@ export function SearchFilterBar({
                 <button
                   type="button"
                   onClick={() => onFilterGenreChange([])}
-                  className="text-xs font-semibold text-[var(--ink-light)] hover:text-[var(--pink-hot)] px-2 transition-colors"
+                  className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-[var(--ink-light)] hover:text-[var(--pink-soft)] transition-colors px-2"
                 >
                   Reset
                 </button>
@@ -229,6 +224,6 @@ export function SearchFilterBar({
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }

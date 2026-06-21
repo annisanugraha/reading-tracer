@@ -36,3 +36,4 @@ export { SearchFilterBar } from "./SearchFilterBar";
 export type { SearchFilterBarProps, SortOption } from "./SearchFilterBar";
 
 export { Navbar } from "./Navbar";
+export { CursorGlow } from "./CursorGlow";

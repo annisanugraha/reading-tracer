@@ -2,95 +2,107 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { href: "/", label: "Dashboard" },
-  { href: "/koleksi", label: "Koleksi" },
-  { href: "/review", label: "Review" },
+  { href: "/", label: "Atelier", icon: "ri-home-5-line" },
+  { href: "/koleksi", label: "Koleksi", icon: "ri-book-2-line" },
+  { href: "/review", label: "Review", icon: "ri-quill-pen-line" },
 ];
 
 export function Navbar() {
   const pathname = usePathname();
   const isActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+    href === "/"
+      ? pathname === "/"
+      : pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <header className="fixed top-4 left-0 right-0 z-50 transition-all duration-300">
-      <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
-        <div
-          className="flex h-16 w-full items-center justify-between px-4 sm:px-6 transition-all duration-300"
-          style={{
-            borderRadius: "9999px",
-            background: "rgba(255, 255, 255, 0.35)",
-          backdropFilter: "blur(24px) saturate(1.5)",
-          WebkitBackdropFilter: "blur(24px) saturate(1.5)",
-          border: "none",
-          boxShadow: "0 12px 40px rgba(87, 132, 230, 0.08), inset 0 1px 0 rgba(255,255,255,1)",
-        }}
-      >
-        {/* Logo */}
-        <Link href="/" style={{ textDecoration: "none" }} className="flex items-center gap-3 group">
-          <div
-            className="flex h-9 w-9 items-center justify-center text-white text-xs font-bold transition-transform duration-300 group-hover:scale-105 group-hover:rotate-3"
-            style={{
-              background: "linear-gradient(135deg, #0B1957, #5784E6)",
-              borderRadius: "12px",
-              boxShadow: "0 4px 16px rgba(11, 25, 87, 0.3)",
-              fontFamily: "var(--font-jakarta), sans-serif",
-            }}
-          >
-            PP
-          </div>
-          <span
-            className="hidden sm:block text-sm font-extrabold tracking-tight"
-            style={{ color: "#0B1957" }}
-          >
-            Perpustakaan Pribadi
-          </span>
-        </Link>
+    <motion.header
+      initial={{ y: -24, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+      className="fixed top-5 left-0 right-0 z-50 px-4 sm:px-8"
+    >
+      <div className="mx-auto w-full max-w-6xl">
+        <nav
+          className="surface-nm flex h-16 items-center justify-between px-3 sm:px-4"
+          aria-label="Navigasi utama"
+        >
+          {/* Logo — wordmark only */}
+          <Link href="/" className="group flex items-baseline gap-2 leading-none">
+            <span
+              className="font-display text-[23px] font-medium italic tracking-tight"
+              style={{ color: "var(--navy)" }}
+            >
+              Atelier
+            </span>
+            <motion.span
+              aria-hidden
+              animate={{ rotate: [0, 14, -10, 0], scale: [1, 1.1, 0.95, 1] }}
+              transition={{
+                duration: 5.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              className="text-[11px]"
+              style={{ color: "var(--pink-soft)" }}
+            >
+              ✦
+            </motion.span>
+            <span
+              className="label-meta ml-1"
+              style={{ fontSize: "9px", letterSpacing: "0.22em" }}
+            >
+              Vol · 01
+            </span>
+          </Link>
 
-        {/* Nav */}
-        <nav aria-label="Navigasi utama">
-          <ul className="flex items-center gap-1.5 sm:gap-2">
+          {/* Nav links */}
+          <ul className="relative flex items-center gap-1">
             {NAV_ITEMS.map((item) => {
               const active = isActive(item.href);
               return (
-                <li key={item.href}>
+                <li key={item.href} className="relative">
                   <Link
                     href={item.href}
                     aria-current={active ? "page" : undefined}
-                    className={`block px-4 py-2 text-sm font-bold transition-all duration-300 rounded-full`}
-                    style={{
-                      textDecoration: "none",
-                      background: active ? "linear-gradient(135deg, #0B1957, #1E3A8A)" : "transparent",
-                      color: active ? "#FFFFFF" : "#78848A",
-                      boxShadow: active ? "0 6px 20px rgba(11, 25, 87, 0.25)" : "none",
-                      transform: active ? "translateY(-1px)" : "none",
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!active) {
-                        e.currentTarget.style.background = "rgba(87, 132, 230, 0.12)";
-                        e.currentTarget.style.color = "#0B1957";
-                        e.currentTarget.style.transform = "translateY(-1px)";
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!active) {
-                        e.currentTarget.style.background = "transparent";
-                        e.currentTarget.style.color = "#78848A";
-                        e.currentTarget.style.transform = "none";
-                      }
-                    }}
+                    className={cn(
+                      "relative inline-flex items-center gap-2 px-4 py-2 rounded-full",
+                      "text-[0.8rem] font-medium transition-colors duration-500",
+                      active ? "text-white" : "text-(--ink-mid) hover:text-(--navy)"
+                    )}
                   >
-                    {item.label}
+                    {active && (
+                      <motion.span
+                        layoutId="nav-active"
+                        className="absolute inset-0 rounded-full"
+                        style={{
+                          background: "var(--navy)",
+                          boxShadow:
+                            "0 4px 14px rgba(11,25,87,0.25), inset 0 1px 0 rgba(255,255,255,0.15)",
+                        }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 380,
+                          damping: 30,
+                        }}
+                      />
+                    )}
+                    <span className="relative z-10 inline-flex items-center gap-2">
+                      <i className={cn(item.icon, "text-[1rem] leading-none")} />
+                      <span className="hidden sm:inline">{item.label}</span>
+                    </span>
                   </Link>
                 </li>
               );
             })}
           </ul>
+
+          {/* Right side intentionally minimal */}
         </nav>
       </div>
-      </div>
-    </header>
+    </motion.header>
   );
 }

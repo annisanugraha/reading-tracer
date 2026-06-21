@@ -1,5 +1,7 @@
 "use client";
 
+import { motion } from "framer-motion";
+
 export interface ProgressBarProps {
   value: number;
   label?: string;
@@ -7,19 +9,30 @@ export interface ProgressBarProps {
 }
 
 /**
- * Progress bar halus dengan gradient fill biru→pink.
+ * Hairline progress bar — 3px, dengan shimmer overlay & fluid width animation.
  */
 export function ProgressBar({ value, label, className = "" }: ProgressBarProps) {
   const v = Math.max(0, Math.min(100, Math.round(value)));
   return (
     <div className={`w-full ${className}`}>
       {label !== undefined && (
-        <div
-          className="mb-1.5 flex items-center justify-between"
-          style={{ fontSize: "0.68rem", fontWeight: 600, color: "var(--ink-mid)" }}
-        >
-          <span>Progress</span>
-          <span style={{ color: "var(--blue-soft)", fontWeight: 700 }}>{v}%</span>
+        <div className="mb-1.5 flex items-center justify-between">
+          <span
+            className="label-meta"
+            style={{ fontSize: "0.6rem", color: "var(--ink-light)" }}
+          >
+            {label.split(/\s+/)[0] || ""}
+          </span>
+          <motion.span
+            key={v}
+            initial={{ opacity: 0, y: -2 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="num-ticker font-display text-[0.8rem] font-normal italic"
+            style={{ color: "var(--navy)" }}
+          >
+            {v}%
+          </motion.span>
         </div>
       )}
       <div
@@ -27,21 +40,13 @@ export function ProgressBar({ value, label, className = "" }: ProgressBarProps) 
         aria-valuenow={v}
         aria-valuemin={0}
         aria-valuemax={100}
-        style={{
-          height: "6px",
-          borderRadius: "9999px",
-          background: "rgba(87,132,230,0.12)",
-          overflow: "hidden",
-        }}
+        className="progress-track"
       >
-        <div
-          style={{
-            height: "100%",
-            width: `${v}%`,
-            borderRadius: "9999px",
-            background: "linear-gradient(90deg, var(--blue-soft), var(--pink-hot))",
-            transition: "width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
-          }}
+        <motion.div
+          className="progress-fill"
+          initial={{ width: 0 }}
+          animate={{ width: `${v}%` }}
+          transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
         />
       </div>
     </div>

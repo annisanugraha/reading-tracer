@@ -1,39 +1,104 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
+import { motion, useMotionValue, useSpring, type Variants } from "framer-motion";
 import { useBooks } from "@/hooks/useBooks";
 import { BookCard } from "@/components/book/BookCard";
 import { StatCard } from "@/components/book/StatCard";
 import { EmptyState } from "@/components/book/EmptyState";
 import { formatAngka } from "@/lib/utils";
-import { motion, type Variants } from "framer-motion";
 
-// ─── Stagger animation (used by lower sections) ───────────────────────────────
-const container: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.08 } },
-};
-const item: Variants = {
+/* ── Motion presets ─────────────────────────────────────────── */
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 24 },
-  show:   { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } },
+  show: { opacity: 1, y: 0, transition: { duration: 1, ease: [0.22, 1, 0.36, 1] } },
+};
+const stagger = (delay = 0): Variants => ({
+  hidden: {},
+  show: { transition: { staggerChildren: 0.08, delayChildren: delay } },
+});
+const itemSpring: Variants = {
+  hidden: { opacity: 0, y: 20, scale: 0.97 },
+  show: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { type: "spring", stiffness: 200, damping: 22 },
+  },
 };
 
-// ─── Section heading ──────────────────────────────────────────────────────────
-function SectionHeading({ title, href, linkLabel }: { title: string; href?: string; linkLabel?: string }) {
+/* ── Section heading ────────────────────────────────────────── */
+function SectionHeading({
+  eyebrow,
+  title,
+  href,
+  linkLabel,
+}: {
+  eyebrow?: string;
+  title: React.ReactNode;
+  href?: string;
+  linkLabel?: string;
+}) {
   return (
-    <div className="mb-5 flex items-center justify-between">
-      <h2 className="heading-section text-lg">{title}</h2>
+    <div className="mb-7 flex items-end justify-between gap-6">
+      <div>
+        {eyebrow && <div className="eyebrow mb-3">{eyebrow}</div>}
+        <h2 className="heading-section text-[1.65rem] sm:text-[1.9rem]">
+          {title}
+        </h2>
+      </div>
       {href && linkLabel && (
-        <Link href={href} className="section-link">
-          {linkLabel} →
+        <Link href={href} className="section-link shrink-0">
+          {linkLabel}
+          <i className="ri-arrow-right-line" style={{ fontSize: "0.85rem" }} />
         </Link>
       )}
     </div>
   );
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+/* ── Animated sine wave for reading pulse ───────────────────── */
+function ReadingPulse() {
+  const path = useMotionValue(0);
+  useEffect(() => {
+    let frame = 0;
+    const tick = () => {
+      path.set((path.get() + 0.012) % 1);
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [path]);
+  return (
+    <svg
+      viewBox="0 0 600 80"
+      preserveAspectRatio="none"
+      className="h-20 w-full"
+      aria-hidden
+    >
+      <motion.path
+        d="M0 40 Q 50 10 100 40 T 200 40 T 300 40 T 400 40 T 500 40 T 600 40"
+        stroke="url(#pulseGrad)"
+        strokeWidth="1.2"
+        fill="none"
+        strokeLinecap="round"
+        initial={{ pathLength: 0, opacity: 0 }}
+        animate={{ pathLength: 1, opacity: 0.7 }}
+        transition={{ duration: 2.4, ease: [0.22, 1, 0.36, 1] }}
+      />
+      <defs>
+        <linearGradient id="pulseGrad" x1="0" x2="1">
+          <stop offset="0%" stopColor="#5784E6" stopOpacity="0" />
+          <stop offset="50%" stopColor="#5784E6" stopOpacity="0.7" />
+          <stop offset="100%" stopColor="#FF99BE" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}
+
+/* ── Page ───────────────────────────────────────────────────── */
 export default function DashboardPage() {
   const { books, siap, statistik } = useBooks();
 
@@ -50,226 +115,143 @@ export default function DashboardPage() {
       books
         .filter((b) => b.status === "selesai")
         .sort((a, b) => (b.tanggalSelesai ?? "").localeCompare(a.tanggalSelesai ?? ""))
-        .slice(0, 5),
+        .slice(0, 6),
     [books]
   );
 
   if (!siap) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-24">
+      <div className="flex min-h-[80vh] flex-col items-center justify-center gap-5">
         <motion.div
           animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="h-8 w-8"
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          className="h-7 w-7 rounded-full"
           style={{
-            border: "2.5px solid rgba(87,132,230,0.2)",
+            border: "1.5px solid rgba(87,132,230,0.15)",
             borderTopColor: "var(--blue-soft)",
-            borderRadius: "9999px",
           }}
         />
-        <p className="label-mono opacity-60">Memuat koleksi…</p>
+        <p className="label-meta opacity-70">
+          <i className="ri-loader-4-line mr-2" style={{ fontSize: "0.85rem" }} />
+          Menyiapkan ateliermu…
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-12">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-20 px-4 pb-20 sm:px-8">
+      {/* ════ HERO ════════════════════════════════════════════════ */}
+      <HeroSection
+        totalBuku={statistik.total}
+        sedang={statistik.sedang}
+        selesai={statistik.selesai}
+      />
 
-      {/* ── HERO — full-screen, airy canvas ──────────────────────────────── */}
-      <motion.section
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.9, ease: "easeOut" }}
-        className="relative flex min-h-[calc(100vh-8rem)] w-full flex-col justify-center overflow-x-clip mt-24 mb-12 rounded-[2.5rem] py-20"
-        style={{
-          background: "linear-gradient(150deg, var(--blue-pale) 0%, #f8f6fb 50%, var(--pink-pale) 100%)",
-        }}
-      >
-        {/* Paper grain */}
-        <svg className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.045] mix-blend-multiply" aria-hidden="true">
-          <filter id="heroGrain">
-            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" />
-          </filter>
-          <rect width="100%" height="100%" filter="url(#heroGrain)" />
-        </svg>
-
-        {/* Ghost word */}
-        <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 hidden translate-y-[18%] select-none text-center font-extrabold leading-none sm:block"
-          style={{
-            fontSize: "clamp(7rem, 26vw, 24rem)",
-            color: "rgba(87,132,230,0.05)",
-            letterSpacing: "-0.04em",
-          }}
-          aria-hidden
-        >
-          Buku
-        </div>
-
-        {/* Decorative blobs */}
-        <div
-          className="blob-float-a pointer-events-none absolute -right-24 -top-24 h-[28rem] w-[28rem] opacity-40"
-          style={{ background: "radial-gradient(circle, var(--blue-pale) 0%, transparent 70%)", borderRadius: "50%", filter: "blur(60px)" }}
-          aria-hidden
-        />
-        <div
-          className="blob-float-b pointer-events-none absolute -bottom-32 -left-16 h-[24rem] w-[24rem] opacity-35"
-          style={{ background: "radial-gradient(circle, var(--pink-mid) 0%, transparent 70%)", borderRadius: "50%", filter: "blur(70px)" }}
-          aria-hidden
-        />
-        <div
-          className="blob-float-c pointer-events-none absolute right-1/4 top-1/3 h-56 w-56 opacity-25"
-          style={{ background: "radial-gradient(circle, var(--pink-pale) 0%, transparent 70%)", borderRadius: "50%", filter: "blur(50px)" }}
-          aria-hidden
-        />
-
-        {/* Floating stat pill */}
-        {statistik.sedang > 0 && (
-          <motion.div
-            className="absolute right-6 top-12 z-10 hidden items-center gap-2 rounded-full px-4 py-2 text-sm font-medium sm:right-14 sm:top-16 md:flex"
-            style={{
-              background: "rgba(255,255,255,0.55)",
-              backdropFilter: "blur(20px) saturate(1.6)",
-              WebkitBackdropFilter: "blur(20px) saturate(1.6)",
-              border: "1px solid rgba(255,255,255,0.8)",
-              color: "var(--navy)",
-              boxShadow: "0 10px 30px rgba(87,132,230,0.12)",
-            }}
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: [0, -8, 0] }}
-            transition={{
-              opacity: { duration: 0.6, delay: 0.9 },
-              y: { duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1.2 },
-            }}
-          >
-            <span className="h-2 w-2 rounded-full" style={{ background: "var(--pink-hot)" }} />
-            Sedang baca {statistik.sedang} buku
-          </motion.div>
-        )}
-
-        {/* Content */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut", staggerChildren: 0.15 }}
-          className="relative z-10 mx-auto flex w-full max-w-3xl flex-col items-center text-center px-6 sm:px-14"
-        >
-          <span
-            className="mb-5 inline-block px-3 py-1 text-xs font-semibold uppercase tracking-widest"
-            style={{
-              background: "linear-gradient(90deg, rgba(194,225,252,0.8), rgba(244,209,255,0.8))",
-              borderRadius: "9999px",
-              color: "var(--navy)",
-              border: "1px solid rgba(255,255,255,0.9)",
-            }}
-          >
-            Reading Lab
-          </span>
-
-          <h1 className="heading-display text-4xl sm:text-6xl lg:text-7xl">
-            Perpustakaan
-            <br />
-            <span
-              style={{
-                background: "linear-gradient(135deg, var(--blue-soft), var(--pink-hot))",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
-              Pribadi.
-            </span>
-          </h1>
-
-          <p
-            className="mt-6 max-w-xl text-base leading-relaxed sm:text-lg mx-auto"
-            style={{ color: "var(--ink-mid)" }}
-          >
-            Catat koleksi buku, lacak progress baca, dan tulis review pribadimu.
-            Semua data tersimpan aman di browser kamu.
-          </p>
-
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link href="/koleksi" className="btn-primary">
-              Buka Koleksi
-            </Link>
-            <Link href="/review" className="btn-ghost">
-              Lihat Review
-            </Link>
-          </div>
-        </motion.div>
-
-        {/* Scroll cue */}
-        <motion.div
-          className="absolute bottom-8 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2"
-          style={{ color: "var(--ink-mid)" }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 1.2 }}
-        >
-          <span className="label-mono text-xs uppercase tracking-widest opacity-60">Gulir ke bawah</span>
-          <motion.svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            animate={{ y: [0, 6, 0] }}
-            transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <path d="M6 9l6 6 6-6" stroke="var(--blue-soft)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </motion.svg>
-        </motion.div>
-      </motion.section>
-
-      {/* ── STATISTIK ── */}
+      {/* ════ STATISTIK ══════════════════════════════════════════ */}
       <section aria-label="Statistik">
-        <SectionHeading title="Statistik" />
+        <SectionHeading
+          eyebrow="Atelier Notes"
+          title={
+            <>
+              Angka-angka <em>dari rakmu</em>
+            </>
+          }
+        />
         <motion.div
-          variants={container}
+          variants={stagger()}
           initial="hidden"
-          animate="show"
+          whileInView="show"
+          viewport={{ once: true, margin: "-80px" }}
           className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5"
         >
-          {[
-            { label: "Total Buku",       value: formatAngka(statistik.total),              hint: `${statistik.selesai} selesai` },
-            { label: "Sedang Dibaca",    value: formatAngka(statistik.sedang),             hint: "Aktif sekarang" },
-            { label: "Selesai",          value: formatAngka(statistik.selesai),            hint: `${statistik.berhenti} berhenti` },
-            { label: "Halaman Dibaca",   value: formatAngka(statistik.totalHalamanDibaca), hint: undefined },
-            {
-              label: "Rata-rata Rating",
-              value: statistik.rataRating > 0 ? `★ ${statistik.rataRating}` : "—",
-              hint: statistik.rataRating > 0 ? "Dari buku yang direview" : "Belum ada review",
-            },
-          ].map((s, i) => (
-            <motion.div key={s.label} variants={item} className={i === 4 ? "col-span-2 sm:col-span-1" : ""}>
-              <StatCard {...s} colorIndex={i} />
-            </motion.div>
-          ))}
+          <motion.div variants={itemSpring}>
+            <StatCard
+              label="Total Buku"
+              value={statistik.total}
+              hint={`${statistik.selesai} selesai`}
+              icon="ri-book-shelf-line"
+              accent="pale"
+            />
+          </motion.div>
+          <motion.div variants={itemSpring}>
+            <StatCard
+              label="Sedang Dibaca"
+              value={statistik.sedang}
+              hint="Aktif sekarang"
+              icon="ri-book-open-line"
+              accent="blue"
+            />
+          </motion.div>
+          <motion.div variants={itemSpring}>
+            <StatCard
+              label="Selesai"
+              value={statistik.selesai}
+              hint={`${statistik.berhenti} berhenti`}
+              icon="ri-checkbox-circle-line"
+              accent="pink"
+            />
+          </motion.div>
+          <motion.div variants={itemSpring}>
+            <StatCard
+              label="Halaman Dibaca"
+              value={statistik.totalHalamanDibaca}
+              hint="sepanjang waktu"
+              icon="ri-file-text-line"
+              accent="mauve"
+            />
+          </motion.div>
+          <motion.div
+            variants={itemSpring}
+            className="col-span-2 sm:col-span-1"
+          >
+            <StatCard
+              label="Rata-rata Rating"
+              value={statistik.rataRating > 0 ? `★ ${statistik.rataRating}` : "—"}
+              hint={
+                statistik.rataRating > 0 ? "dari reviewmu" : "belum ada review"
+              }
+              icon="ri-star-half-line"
+              accent="mute"
+            />
+          </motion.div>
         </motion.div>
       </section>
 
-      {/* ── SEDANG DIBACA ── */}
+      {/* ════ SEDANG DIBACA ═════════════════════════════════════ */}
       <section aria-label="Sedang dibaca">
-        <SectionHeading title="Sedang Dibaca" href="/koleksi?status=sedang-dibaca" linkLabel="Lihat semua" />
+        <SectionHeading
+          eyebrow="In Progress"
+          title={
+            <>
+              Sedang <em>kupeluk</em>
+            </>
+          }
+          href="/koleksi?status=sedang-dibaca"
+          linkLabel="Lihat semua"
+        />
         {sedangDibaca.length === 0 ? (
           <EmptyState
+            variant="books"
             title="Belum ada buku yang sedang dibaca"
-            description="Tandai buku sebagai Sedang Dibaca untuk mulai mencatat progress."
+            description="Tandai buku sebagai Sedang Dibaca untuk mulai mencatat progress harianmu."
             action={
-              <Link href="/koleksi" className="btn-primary">
+              <Link href="/koleksi" className="btn btn-ink">
+                <i className="ri-book-open-line" />
                 Buka Koleksi
               </Link>
             }
           />
         ) : (
           <motion.div
-            variants={container}
+            variants={stagger()}
             initial="hidden"
-            animate="show"
+            whileInView="show"
+            viewport={{ once: true, margin: "-60px" }}
             className="grid grid-cols-1 gap-4 md:grid-cols-2"
           >
             {sedangDibaca.map((b) => (
-              <motion.div key={b.id} variants={item}>
+              <motion.div key={b.id} variants={itemSpring}>
                 <BookCard
                   cover={b.coverUrl}
                   judul={b.judul}
@@ -285,23 +267,34 @@ export default function DashboardPage() {
         )}
       </section>
 
-      {/* ── BARU SELESAI ── */}
+      {/* ════ BARU SELESAI ══════════════════════════════════════ */}
       <section aria-label="Baru selesai">
-        <SectionHeading title="Baru Selesai" href="/review" linkLabel="Lihat semua review" />
+        <SectionHeading
+          eyebrow="Recently Closed"
+          title={
+            <>
+              Baru saja <em>kusinggah</em>
+            </>
+          }
+          href="/review"
+          linkLabel="Lihat review"
+        />
         {baruSelesai.length === 0 ? (
           <EmptyState
+            variant="review"
             title="Belum ada buku yang selesai dibaca"
-            description="Setelah menandai buku Selesai dan menulis review, buku akan muncul di sini."
+            description="Setelah menandai sebuah buku Selesai dan menulis review, buku akan muncul di sini."
           />
         ) : (
           <motion.div
-            variants={container}
+            variants={stagger(0.05)}
             initial="hidden"
-            animate="show"
+            whileInView="show"
+            viewport={{ once: true, margin: "-60px" }}
             className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
           >
             {baruSelesai.map((b) => (
-              <motion.div key={b.id} variants={item}>
+              <motion.div key={b.id} variants={itemSpring}>
                 <BookCard
                   cover={b.coverUrl}
                   judul={b.judul}
@@ -315,7 +308,312 @@ export default function DashboardPage() {
           </motion.div>
         )}
       </section>
-
     </div>
+  );
+}
+
+/* ── Hero ──────────────────────────────────────────────────── */
+function HeroSection({
+  totalBuku,
+  sedang,
+  selesai,
+}: {
+  totalBuku: number;
+  sedang: number;
+  selesai: number;
+}) {
+  const heroRef = useRef<HTMLElement>(null);
+  const mx = useMotionValue(0);
+  const my = useMotionValue(0);
+  const smx = useSpring(mx, { stiffness: 60, damping: 18 });
+  const smy = useSpring(my, { stiffness: 60, damping: 18 });
+
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      const el = heroRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      mx.set(x * 30);
+      my.set(y * 30);
+    };
+    window.addEventListener("mousemove", onMove);
+    return () => window.removeEventListener("mousemove", onMove);
+  }, [mx, my]);
+
+  return (
+    <section
+      ref={heroRef}
+      className="relative -mt-2 flex w-full flex-col overflow-hidden"
+    >
+      {/* Soft gradient backdrop */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 overflow-hidden rounded-[3rem]"
+        style={{
+          background:
+            "linear-gradient(150deg, rgba(194,225,252,0.4) 0%, rgba(255,255,255,0.85) 45%, rgba(244,209,255,0.4) 100%)",
+        }}
+      >
+        {/* Mouse-following blobs */}
+        <motion.div
+          aria-hidden
+          style={{ x: smx, y: smy }}
+          className="blob-a absolute -right-32 -top-32 h-[26rem] w-[26rem] rounded-full"
+        >
+          <div
+            className="h-full w-full rounded-full"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(194,225,252,0.55) 0%, transparent 65%)",
+              filter: "blur(50px)",
+            }}
+          />
+        </motion.div>
+        <motion.div
+          aria-hidden
+          style={{ x: useMotionValue(0), y: useMotionValue(0) }}
+          className="blob-b absolute -bottom-32 -left-20 h-[22rem] w-[22rem]"
+        >
+          <div
+            className="h-full w-full rounded-full"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(255,194,217,0.45) 0%, transparent 65%)",
+              filter: "blur(60px)",
+            }}
+          />
+        </motion.div>
+        <motion.div
+          aria-hidden
+          className="blob-c absolute right-1/3 top-1/2 h-48 w-48"
+        >
+          <div
+            className="h-full w-full rounded-full"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(244,209,255,0.35) 0%, transparent 65%)",
+              filter: "blur(40px)",
+            }}
+          />
+        </motion.div>
+      </div>
+
+      {/* Hero content */}
+      <div className="relative z-10 mx-auto flex w-full max-w-4xl flex-col items-center px-2 py-24 text-center sm:py-32">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
+          className="mb-7 inline-flex items-center gap-2 px-4 py-1.5"
+          style={{
+            background: "rgba(255,255,255,0.65)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            border: "1px solid rgba(255,255,255,0.9)",
+            borderRadius: "9999px",
+            boxShadow: "0 2px 8px rgba(11,25,87,0.05)",
+          }}
+        >
+          <span
+            className="h-1.5 w-1.5 rounded-full"
+            style={{
+              background: "var(--pink-hot)",
+              animation: "pulse-soft 2.4s ease-in-out infinite",
+            }}
+            aria-hidden
+          />
+          <span
+            className="label-meta"
+            style={{ fontSize: "0.62rem", color: "var(--navy)" }}
+          >
+            Reading Atelier · Est. {new Date().getFullYear()}
+          </span>
+        </motion.div>
+
+        <motion.h1
+          initial="hidden"
+          animate="show"
+          variants={stagger(0.4)}
+          className="heading-hero text-balance"
+          style={{
+            fontSize: "clamp(2.6rem, 7vw, 5.2rem)",
+          }}
+        >
+          <motion.span variants={fadeUp} className="block">
+            Sebuah atelier
+          </motion.span>
+          <motion.span variants={fadeUp} className="block">
+            kecil untuk{" "}
+            <em className="font-display italic" style={{ color: "var(--pink-soft)" }}>
+              buku-buku
+            </em>
+          </motion.span>
+          <motion.span variants={fadeUp} className="block">
+            yang pernah kamu{" "}
+            <em className="font-display italic" style={{ color: "var(--blue-soft)" }}>
+              sentuh
+            </em>
+            .
+          </motion.span>
+        </motion.h1>
+
+        <motion.p
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 1,
+            ease: [0.22, 1, 0.36, 1],
+            delay: 0.9,
+          }}
+          className="body-lead mt-8 max-w-xl text-balance"
+          style={{ fontSize: "clamp(1rem, 1.4vw, 1.15rem)" }}
+        >
+          Catat setiap buku yang kamu temukan, lacak halaman yang sudah kamu
+          jelajahi, dan tuliskan kesan yang tak ingin kamu lupakan.
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.9,
+            ease: [0.22, 1, 0.36, 1],
+            delay: 1.15,
+          }}
+          className="mt-10 flex flex-wrap items-center justify-center gap-3"
+        >
+          <Link href="/koleksi" className="btn btn-ink">
+            <i className="ri-book-open-line" style={{ fontSize: "1rem" }} />
+            Buka Koleksi
+          </Link>
+          <Link href="/review" className="btn btn-paper">
+            <i className="ri-quill-pen-line" style={{ fontSize: "1rem" }} />
+            Lihat Review
+          </Link>
+        </motion.div>
+
+        {/* Live snapshot row */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.9,
+            ease: [0.22, 1, 0.36, 1],
+            delay: 1.4,
+          }}
+          className="mt-14 flex flex-wrap items-center justify-center gap-x-10 gap-y-4"
+        >
+          <SnapshotItem label="buku" value={totalBuku} icon="ri-book-mark-line" />
+          <span
+            aria-hidden
+            className="hidden h-6 w-px sm:block"
+            style={{ background: "var(--hairline-strong)" }}
+          />
+          <SnapshotItem label="dibaca" value={sedang} icon="ri-book-open-line" />
+          <span
+            aria-hidden
+            className="hidden h-6 w-px sm:block"
+            style={{ background: "var(--hairline-strong)" }}
+          />
+          <SnapshotItem label="selesai" value={selesai} icon="ri-checkbox-circle-line" />
+        </motion.div>
+
+        {/* Reading pulse */}
+        {totalBuku > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1.2, delay: 1.6 }}
+            className="mt-16 w-full max-w-md"
+          >
+            <div className="mb-2 flex items-center justify-center gap-2">
+              <span
+                className="h-1 w-1 rounded-full"
+                style={{ background: "var(--blue-soft)" }}
+                aria-hidden
+              />
+              <span
+                className="label-meta"
+                style={{ fontSize: "0.58rem", color: "var(--ink-light)" }}
+              >
+                Reading Pulse
+              </span>
+              <span
+                className="h-1 w-1 rounded-full"
+                style={{ background: "var(--blue-soft)" }}
+                aria-hidden
+              />
+            </div>
+            <ReadingPulse />
+          </motion.div>
+        )}
+
+        {/* Scroll cue */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 2 }}
+          className="mt-12 flex flex-col items-center gap-2"
+          style={{ color: "var(--ink-light)" }}
+        >
+          <span
+            className="label-meta"
+            style={{ fontSize: "0.58rem", opacity: 0.7 }}
+          >
+            Gulir ke bawah
+          </span>
+          <i
+            className="ri-arrow-down-line scroll-cue"
+            style={{ fontSize: "1.1rem" }}
+          />
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+function SnapshotItem({
+  label,
+  value,
+  icon,
+}: {
+  label: string;
+  value: number;
+  icon: string;
+}) {
+  return (
+    <motion.div
+      whileHover={{ y: -2 }}
+      transition={{ type: "spring", stiffness: 320, damping: 18 }}
+      className="flex items-center gap-2.5"
+    >
+      <span
+        className="flex h-8 w-8 items-center justify-center"
+        style={{
+          background: "rgba(255,255,255,0.7)",
+          border: "1px solid var(--hairline)",
+          borderRadius: "10px",
+          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9)",
+        }}
+      >
+        <i className={icon} style={{ fontSize: "0.9rem", color: "var(--navy)" }} />
+      </span>
+      <div className="flex flex-col leading-none">
+        <span
+          className="num-ticker font-display text-[1.1rem] font-normal"
+          style={{ color: "var(--navy)" }}
+        >
+          {formatAngka(value)}
+        </span>
+        <span
+          className="label-meta mt-0.5"
+          style={{ fontSize: "0.58rem", color: "var(--ink-light)" }}
+        >
+          {label}
+        </span>
+      </div>
+    </motion.div>
   );
 }

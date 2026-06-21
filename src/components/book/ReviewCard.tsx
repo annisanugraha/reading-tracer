@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useRef, type MouseEvent } from "react";
+import { motion } from "framer-motion";
 import { RatingStars } from "./RatingStars";
 import { escapeAlt, formatTanggal, inisialJudul } from "@/lib/utils";
-import { motion } from "framer-motion";
 
 export interface ReviewCardProps {
   cover?: string;
@@ -25,7 +26,8 @@ const COVER_GRADIENTS = [
 ];
 
 /**
- * Kartu review buku dengan soft premium glassmorphism style.
+ * ReviewCard — editorial review dengan quote-mark flourish dan neumorphism.
+ * Opening curly quote animates in first.
  */
 export function ReviewCard({
   cover,
@@ -35,35 +37,81 @@ export function ReviewCard({
   tanggal,
   penulis,
   href,
-  cuplikanMaks = 220,
+  cuplikanMaks = 200,
   className = "",
 }: ReviewCardProps) {
   const cuplikan =
     teksReview.length > cuplikanMaks
       ? teksReview.slice(0, cuplikanMaks).trimEnd() + "…"
       : teksReview;
-
   const inisial = inisialJudul(judul);
   const bgIdx = inisial.charCodeAt(0) % COVER_GRADIENTS.length;
 
+  const cardRef = useRef<HTMLDivElement>(null);
+  const onMouseMove = (e: MouseEvent<HTMLDivElement>) => {
+    const el = cardRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    el.style.setProperty("--mx", `${(x + 0.5) * 100}%`);
+    el.style.setProperty("--my", `${(y + 0.5) * 100}%`);
+  };
+
   const inner = (
     <motion.article
-      whileHover={{ y: -4, boxShadow: "0 16px 48px rgba(87,132,230,0.18), 0 4px 16px rgba(0,0,0,0.07)" }}
-      whileTap={{ y: 0 }}
-      transition={{ type: "spring", stiffness: 380, damping: 22 }}
-      className={`flex gap-5 p-5 ${className}`}
+      ref={cardRef}
+      onMouseMove={onMouseMove}
+      whileHover={{ y: -3 }}
+      transition={{ type: "spring", stiffness: 220, damping: 22 }}
+      className={`group relative flex gap-5 p-5 ${className}`}
       style={{
-        background: "rgba(255,255,255,0.72)",
-        backdropFilter: "blur(16px)",
-        WebkitBackdropFilter: "blur(16px)",
-        border: "1px solid rgba(255,255,255,0.92)",
-        borderRadius: "1.5rem",
-        boxShadow: "0 4px 24px rgba(87,132,230,0.10), 0 1px 6px rgba(0,0,0,0.05)",
+        background: "var(--surface)",
+        border: "1px solid var(--hairline)",
+        borderRadius: "1.75rem",
+        boxShadow: "var(--shadow-float)",
+        transition: "box-shadow 0.6s cubic-bezier(0.22, 1, 0.36, 1)",
       }}
     >
+      <motion.span
+        initial={{ opacity: 0, scale: 0.6, rotate: -8 }}
+        whileInView={{ opacity: 0.18, scale: 1, rotate: 0 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+        aria-hidden
+        className="font-display pointer-events-none absolute -top-2 left-4 select-none"
+        style={{
+          fontSize: "5rem",
+          fontStyle: "italic",
+          fontWeight: 400,
+          color: "var(--blue-soft)",
+          lineHeight: 1,
+        }}
+      >
+        “
+      </motion.span>
+
+      <span
+        aria-hidden
+        className="pointer-events-none absolute top-0 left-8 right-8 h-px"
+        style={{
+          background:
+            "linear-gradient(90deg, transparent, rgba(255,255,255,0.95), transparent)",
+        }}
+      />
+
       <div className="flex-shrink-0">
         {cover ? (
-          <div className="h-24 w-16 overflow-hidden rounded-xl shadow-sm">
+          <div
+            className="overflow-hidden"
+            style={{
+              height: "7rem",
+              width: "5rem",
+              borderRadius: "0.75rem",
+              boxShadow:
+                "0 4px 14px rgba(11,25,87,0.10), inset 0 1px 0 rgba(255,255,255,0.3)",
+            }}
+          >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={cover}
@@ -74,11 +122,22 @@ export function ReviewCard({
           </div>
         ) : (
           <div
-            className="flex h-24 w-16 items-center justify-center rounded-xl shadow-sm"
-            style={{ background: COVER_GRADIENTS[bgIdx] }}
+            className="flex items-center justify-center"
+            style={{
+              height: "7rem",
+              width: "5rem",
+              borderRadius: "0.75rem",
+              background: COVER_GRADIENTS[bgIdx],
+              boxShadow:
+                "0 4px 14px rgba(11,25,87,0.12), inset 0 1px 0 rgba(255,255,255,0.35)",
+            }}
           >
             <span
-              className="text-lg font-extrabold text-white/90 tracking-tight"
+              className="font-display text-xl font-normal italic"
+              style={{
+                color: "rgba(255,255,255,0.92)",
+                letterSpacing: "-0.03em",
+              }}
             >
               {inisial}
             </span>
@@ -89,33 +148,45 @@ export function ReviewCard({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h3
-              className="line-clamp-1 text-base font-bold leading-tight"
+              className="font-display line-clamp-1 text-[1.05rem] font-normal tracking-tight"
               style={{ color: "var(--navy)" }}
             >
               {judul}
             </h3>
             {penulis && (
-              <p className="line-clamp-1 text-xs font-medium mt-0.5" style={{ color: "var(--ink-mid)" }}>
-                {penulis}
+              <p
+                className="mt-0.5 line-clamp-1 text-[0.72rem] font-light italic"
+                style={{ color: "var(--ink-mid)" }}
+              >
+                — {penulis}
               </p>
             )}
           </div>
           <time
-            className="shrink-0 text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-full"
-            style={{
-              color: "var(--navy)",
-              background: "var(--blue-pale)",
-            }}
+            className="label-meta shrink-0"
+            style={{ fontSize: "0.58rem", color: "var(--ink-mid)" }}
           >
             {formatTanggal(tanggal)}
           </time>
         </div>
+
         <RatingStars value={rating} readOnly size="sm" />
+
         {cuplikan && (
-          <p className="line-clamp-3 text-sm leading-relaxed" style={{ color: "var(--ink)" }}>
+          <p
+            className="font-display text-[0.9rem] italic leading-relaxed text-pretty"
+            style={{ color: "var(--ink)" }}
+          >
             {cuplikan}
           </p>
         )}
+
+        <div className="mt-1 flex items-center gap-2">
+          <span className="label-meta" style={{ fontSize: "0.58rem" }}>
+            <i className="ri-chat-quote-line mr-1" />
+            Review
+          </span>
+        </div>
       </div>
     </motion.article>
   );
@@ -124,8 +195,8 @@ export function ReviewCard({
     return (
       <Link
         href={href}
-        className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blue-soft)]"
-        style={{ borderRadius: "1.5rem" }}
+        className="block focus:outline-none"
+        style={{ borderRadius: "1.75rem" }}
       >
         {inner}
       </Link>
