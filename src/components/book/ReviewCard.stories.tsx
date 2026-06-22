@@ -37,7 +37,7 @@ export const LongQuote: Story = {
 
 export const WithCover: Story = {
   args: {
-    cover: 'https://placehold.co/120x180/FF99BE/ffffff?text=BC',
+    cover: "https://image.gramedia.net/rs:fit:0:0/plain/https://cdn.gramedia.com/uploads/items/9786025734687_bumi-cinta.jpg",
     judul: 'Bumi Cinta',
     penulis: 'Habiburrahman El Shirazy',
     rating: 5,

@@ -57,8 +57,13 @@ export default function RootLayout({
     <html
       lang="id"
       className={`${fraunces.variable} ${inter.variable} ${mono.variable}`}
+      suppressHydrationWarning
+      data-scroll-behavior="smooth"
     >
-      <body className="min-h-screen flex flex-col antialiased">
+      <body
+        className="min-h-screen flex flex-col antialiased"
+        suppressHydrationWarning
+      >
         <CursorGlow />
         <Navbar />
         <main className="relative z-10 flex w-full flex-1 flex-col">

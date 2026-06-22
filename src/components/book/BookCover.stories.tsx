@@ -29,7 +29,7 @@ export const ExtraLarge: Story = {
 export const WithCover: Story = {
   args: {
     judul: 'Cantik Itu Luka',
-    src: 'https://placehold.co/300x450/4E8BC4/ffffff?text=CIL',
+    src: "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1512961607i/37365703.jpg",
     size: 'lg',
   },
 };

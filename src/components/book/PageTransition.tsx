@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -11,18 +10,26 @@ const CURTAIN_COLORS = [
   "linear-gradient(180deg, rgba(238,242,252,0.92) 0%, rgba(255,255,255,0.6) 100%)",
 ];
 
+function hashPath(pathname: string): number {
+  let h = 0;
+  for (let i = 0; i < pathname.length; i++) {
+    h = (h * 31 + pathname.charCodeAt(i)) | 0;
+  }
+  return Math.abs(h);
+}
+
+function curtainFor(pathname: string): string {
+  return CURTAIN_COLORS[hashPath(pathname) % CURTAIN_COLORS.length];
+}
+
 /**
- * PageTransition v2 — curtain veil with randomized palette color,
+ * PageTransition v2 — curtain veil with deterministic palette color
+ * derived from pathname (stable across SSR & hydration),
  * unfold-from-center enter animation.
  */
 export function PageTransition({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-
-  const curtainColor = useMemo(() => {
-    const idx = Math.floor(Math.random() * CURTAIN_COLORS.length);
-    return CURTAIN_COLORS[idx];
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+  const curtainColor = curtainFor(pathname ?? "/");
 
   return (
     <AnimatePresence mode="wait">

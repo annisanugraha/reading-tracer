@@ -45,7 +45,7 @@ export const Selesai: Story = {
 
 export const WithCover: Story = {
   args: {
-    cover: 'https://placehold.co/120x180/5784E6/ffffff?text=AH',
+    cover: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQX5WWDSGWbxo87Jz_E4v84wgJq-PSjLzNvLLGKZVO3bD6iAjIvHg-_fitO&s=10",
     judul: 'Bumi Manusia',
     penulis: 'Pramoedya Ananta Toer',
     status: 'sedang-dibaca',
