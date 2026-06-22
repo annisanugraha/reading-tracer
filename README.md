@@ -218,7 +218,7 @@ reading-atelier/
 
 ✽ &nbsp; ❀ &nbsp; ✿ &nbsp; ❋ &nbsp; ✦ &nbsp; ❋ &nbsp; ✿ &nbsp; ❀ &nbsp; ✽
 
-*Handcrafted with care · {year}*
+*Handcrafted with care · 2026*
 
 **Reading Atelier** — *A little atelier for the books that have ever touched you.*
 
